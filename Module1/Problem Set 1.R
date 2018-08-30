@@ -1,3 +1,5 @@
+library(xtable)
+
 ## Problem 1.
 # Read in the data
 data <- read.table('./data/favorite.data', colClasses = c('numeric'))[, 1]
@@ -59,28 +61,63 @@ print(paste(sum(d > 6000), "elements of d are greater than 6000"))
 
 ## Problem 4
 # a)
-add_perfect_squares <- function(x){
-  perfect_squares <- 0
-  # Loop through all elements between 1 and x
-  for (z in seq(1, x)){
-    # If x is a perfect square
-    if (sqrt(z) %% 1 == 0){
-      # add it to the vector
-      perfect_squares <- perfect_squares + z
-    }
+# This is the function for Problem 5. 
+# It's reusable, so I wrote it here instead of there
+get_perfect_squares <- function(x){
+  perfect_squares <- c()
+  z <- 1
+  while (z ^ 2 <= x){
+    perfect_squares <- c(perfect_squares, z ^ 2)
+    z <- z + 1
   }
+  return(perfect_squares)
+}
+
+add_perfect_squares <- function(x){
+  perfect_squares <- get_perfect_squares(x)
   return(sum(perfect_squares))
 }
 
 # a)
 print("The sum of all perfect squares between 1 and: ")
-print(paste(100, add_perfect_squares(100), sep=": "))
+n = 100
+print(paste(n, add_perfect_squares(n), sep=": "))
 # b)
-print(paste(100000, add_perfect_squares(100000), sep=": "))
+n = 100000
+print(paste(n, add_perfect_squares(n), sep=": "))
+
+# Problem 5
+# a) 
+vector_1_to_500 <- get_perfect_squares(500)
+print(xtable(matrix(vector_1_to_500)))
+
+# b)
+matrix_1_to_100000 <- matrix(get_perfect_squares(100000), ncol=4)
+print(xtable(matrix_1_to_100000))
+
+# c) 
+print("The [15, 3] element is:")
+print(matrix_1_to_100000[15, 3])
 
 
+# Problem 6
+x <- seq(-1 * pi, pi, length.out = 50)
+y1 <- sin(x)
+y2 <- cos(x)
 
+# a)
+pdf("problem_6_a.pdf", height=8.5, width=14)
+plot(x, y1)
+dev.off()
 
+# b) 
+pdf("problem_6_b.pdf", height=8.5, width=14)
+plot(x, y2, 'l')
+dev.off()
 
-
+# c) 
+pdf("problem_6_c.pdf", height=8.5, width=14)
+plot(x, y2, 'l')
+abline(a=1, b=-1 * (1 / 3))
+dev.off()
 
