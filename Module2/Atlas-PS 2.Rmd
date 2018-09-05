@@ -1,0 +1,350 @@
+---
+title: "Atlas-PS 2"
+author: "David Atlas"
+output: 
+  pdf_document: 
+    keep_tex: yes
+geometry: margin=1.5cm
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Problem 1
+## a)
+Let $X = (28, 33, 22, 35)$ be our set of i.i.d data points. The function $s_p(\theta)=\sqrt{\Sigma_{x \in X}(\theta - x)^2}$, or the sum of squared residuals. 
+
+## b)
+$s_p(\theta)$ is plotted below, with the R code used to generate the plot. 
+```{r, warning=FALSE}
+library(latex2exp)
+x <- c(28, 33, 22, 35)
+s_p <- function(theta, x){
+  # We implement our function to minimize
+  return(sqrt(sum((theta - x) ^ 2)))
+}
+
+# We set up our domain for theta
+theta_space <- seq(20, 35, .25)
+# We calculate the function value over the space
+s_p_theta_space <- sapply(theta_space, function(theta){s_p(theta, x)})
+
+# We plot the function over the space
+plot(theta_space, s_p_theta_space, 'l', 
+  main=TeX('Plot of $s_p(\\Theta)$'), 
+  xlab=TeX('$\\theta$'), ylab=TeX('$s_p(\\theta)$'))
+```
+
+## c)
+To use the bisection method, we must first compute $s_p\prime(\theta)$.
+\begin{align*}
+  s_p\prime (\theta) &= \frac{1}{2} (\Sigma_{x \in X} (\theta - x)^{2})^{-\frac{1}{2}} \times 2 \Sigma_{x\in X}(\theta-x) \\
+  &= (\Sigma_{x \in X} (\theta - x)^{2})^{-\frac{1}{2}} \Sigma_{x\in X}(\theta - x).
+\end{align*}
+
+Next, we implement the bisection method, as well as $s_p(\theta)$ and $s_p \prime (\theta)$. 
+We plot the $s_p(\theta)$ with the Minimum Residual Estimator as a vertical line.
+The solution to the optimization problem is $\hat{\theta}=29.50$.
+
+```{r}
+x <- c(28, 33, 22, 35)
+
+s_p <- function(theta, x){
+  # We implement our function to minimize
+  return(sqrt(sum((theta - x) ^ 2)))
+}
+
+s_p_prime <- function(theta, x){
+  # This is the first derivative of the function
+  return(((sum(theta - x) ^ 2) ^ -.5) * sum(theta - x))
+}
+
+bisection <- function(a, b, f_prime, tol=.0001, n=0){
+  x_t <- .5 * (a + b)
+  # Use conditioning to get the next interval
+  if(f_prime(a, x) * f_prime(x_t, x) <= 0){
+    new_interval <- c(a, x_t)
+  }else{
+    new_interval <- c(x_t, b)
+  }
+  
+  # if interval is less than the tolerance, stop the recursion.
+  if ((b - a) < tol){
+    print(paste0("The solution is ", round(x_t, 3) , " and it was found in ", n, " iterations."))
+    return(x_t)
+  }else{
+    # If not, call again on the new interval
+    return(bisection(new_interval[1], new_interval[2], f_prime, n=n + 1))  
+  }
+}
+
+plot(theta_space, s_p_theta_space, 'l', 
+  main=TeX('Plot of $s_p(\\Theta)$'), 
+  xlab=TeX('$\\theta$'), ylab=TeX('$s_p(\\theta)$'))
+abline(v=bisection(20, 35, s_p_prime, tol=.000001))
+```
+## d)
+We already calculated $s_p^\prime (\theta) = (\Sigma_{x \in X} (\theta - x)^{2})^{-\frac{1}{2}}\Sigma_{x\in X}(\theta - x)$. We find 
+\begin{align*}
+s_p^{\prime \prime} (\theta) &= -\frac{1}{2} (\Sigma_{x \in X} (\theta - x)^2)^{-\frac{3}{2}}
+\Sigma_{x \in X}(\theta - x) +  (\Sigma_{x \in X} (\theta - x)^2)^{-\frac{1}{2}}.
+\end{align*}
+We can then find $h(\theta) = \frac{s_p^{\prime}(\theta)}{s_p^{\prime \prime}(\theta)}$.
+\begin{align*}
+  -\frac{s_p^{\prime}(\theta)}{s_p^{\prime \prime}(\theta)} &=
+    -\frac{(\Sigma_{x \in X} (\theta - x)^{2})^{-\frac{1}{2}}\Sigma_{x\in X}(\theta - x)}
+      {-\frac{1}{2} (\Sigma_{x \in X} (\theta - x)^2)^{-\frac{3}{2}}
+      \Sigma_{x \in X}(\theta - x) +  (\Sigma_{x \in X} (\theta - x)^2)^{-\frac{1}{2}}} \\
+      &= 2 \frac{\Sigma_{x \in X}(\theta - x)}{\Sigma_{x \in X}(\theta - x)^2 + 2}
+\end{align*}
+
+# Problem 2
+We maximize the function $f(x) = -\frac{x^4}{4} + \frac{x^2}{2} - x + 2$ using Newton's Method and starting points $x_0=-1$ and $x_0=2$. We also print out the number of
+iterations needed to converge within 2 decimal places. We define the first 2 
+derivatives of the function below:
+\begin{align}
+f(x) &= -\frac{x^4}{4} + \frac{x^2}{2} - x + 2 \\ 
+f^{\prime}(x) &= -x^3+ x - 1 \\ 
+f^{\prime \prime}(x) &= -3x^2 + 1
+\end{align}
+
+We implement Newton's Method:
+```{r}
+newtons <- function(xt, fprime, f2prime, n=1, tol=0.01){
+  # Define the updating equation
+  xt_update <- xt - (fprime(xt) / f2prime(xt))
+  
+  # If the adjustment value is less than the tolerance, end the iterations
+  if(abs(xt_update - xt) < tol){
+    print(paste0("The solution is ", round(xt_update, 3) , " and it was found in ", n, " iterations."))
+    return(xt_update)
+  }else{
+    # If not, call the recursive formula again
+    return(newtons(xt_update, fprime, f2prime, n=n+1, tol=tol))
+  }
+}
+
+fprime <- function(x){
+  return(-x^3 + x -1)
+}
+
+f2prime <- function(x){
+  return(-3 * x ^ 2 + 1)
+}
+```
+## a)
+We solve the optimization using $x_0=-1$.
+```{r}
+x0 <- -1
+solution <- newtons(x0, fprime, f2prime)
+```
+The solution is -1.325, and it took 4 iterations to find it.
+
+## b) 
+We solve the optimization using $x_0=2$.
+```{r}
+x0 <- 2
+solution <- newtons(x0, fprime, f2prime)
+```
+The solution is -1.325, and it took 64 iterations to find it.
+ 
+# Problem 3
+We solve exercise 2.1 from the textbook:
+
+The following data are an i.i.d. sample from a 
+Cauchy($\theta$, 1) distribution:
+1.77, -.23, 2.76, 3.80, 3.47, 56.75, -1.34, 4.24, 
+-2.44, 3.29, 3.71, -2.40, 4.53, -.07, -1.05, -13.87, 
+-2.53, -1.75, .27, 43.21. 
+
+## a) 
+Graph the log likelihood function. Find the MLE for $\theta$ using the Newton-Raphson method. Try the following starting point: -11, -1, 0, 1.5, 4, 4.7, 7, 8, 38. Discuss your results. Is the mean of the data a good starting point?
+
+The likelihood function of a Cauchy($\theta$, 1) distribution:
+\[
+L(\theta) = \prod_{x \in X} \frac{1}
+{\pi(1 + (x - \theta) ^ 2)}.
+\]
+Therefore, the log-likelihood is
+\begin{align*}
+l(\theta) &= \Sigma_{x \in X}\ln\left(\frac{1}{\pi (1 + (x - \theta)^2)}\right) \\&= \Sigma_{x \in X} -\ln(\pi(1  + (x - \theta)^2)) \\
+&= - n \ln(\pi) - \Sigma_{x \in X} \ln(1 + (x - \theta) ^ 2),
+\end{align*}
+where $n$ is the number of observations in $X$. 
+
+We plot the function below.
+```{r}
+X <- c(1.77, -.23, 2.76, 3.80, 3.47, 56.75, -1.34, 4.24, 
+-2.44, 3.29, 3.71, -2.40, 4.53, -.07, -1.05, -13.87, 
+-2.53, -1.75, .27, 43.21)
+
+log_likelihood <- function(theta, x){
+  return (sum(dcauchy(x, location=theta, scale=1, log=TRUE)))
+}
+
+theta_space <- seq(-50, 100, .25)
+theta_f <- sapply(theta_space, function(theta){log_likelihood(theta, X)})
+plot(theta_space, theta_f, 'l', 
+    main=TeX('Log-likelihood of Cauchy($\\theta$, 1)' ), 
+    xlab=TeX('$\\theta$'), ylab='Log-likelihood')
+```
+We note that the log-likelihood values can be negative, as they are not likelihoods, but rather the natural logarithms of those likelihoods.
+
+Next, we find the MLE for $\theta$ using Newton's Method for the set of
+starting values given above. We calculate the first two derivatives of
+the log-likelihood function.
+\begin{align*}
+l^{\prime} &= - \Sigma_{x \in X} 2 \frac{x - \theta}{1 + (x - \theta) ^2} \\
+l^{\prime \prime} &= 
+  - \Sigma_{x \in X} 2(1 + (x - \theta)^2)^{-1} + 
+    -4 (x - \theta)(1 + (x - \theta)^2)^{-2}(x - \theta) \\
+    &= - \Sigma_{x \in X} \frac{2}{1 + (x - \theta)^2} - 
+    \frac{4(x - \theta)^2}{(1 + (x - \theta)^2)^2}
+\end{align*}
+```{r}
+newtons <- function(xt, fprime, f2prime, tol=0.01){
+  # Define the updating equation
+  n <- 0
+  xt_update <- xt + 100  
+  
+  while(abs(fprime(xt)) > tol){
+    xt <- ifelse(n == 0, xt, xt_update)
+    
+    xt_update <- xt - (fprime(xt) / f2prime(xt))
+    n <- n + 1
+  }
+  # If the adjustment value is less than the tolerance, end the iterations
+  print(paste0("The solution is ", round(xt_update, 3) , " and it was found in ", n, " iterations."))
+  return(xt_update)
+}
+
+fprime <- function(theta) sum(2 * (X - theta) / (1 + (X - theta) ^ 2))
+
+f2prime <- function(theta){
+  return(2 * sum (((X - theta) ^ 2 - 1) / (1 + (X - theta) ^ 2 ) ^ 2))
+}
+
+
+starting_points <- c(-11, -1, 0, 1.5, 4, 4.7, 7, 8, 38, mean(X), median(X))
+
+solutions <- sapply(starting_points, function(x0){
+  print(paste0("Starting Point: ", x0))
+  newtons(x0, fprime=fprime, f2prime=f2prime, tol=.0001)
+})
+
+
+theta_space <- seq(-50, 50, .25)
+theta_f <- sapply(theta_space, function(theta){log_likelihood(theta, X)})
+
+plot(theta_space, theta_f, 'l', 
+    main=TeX('Log-likelihood of Cauchy($\\theta$, 1)' ), 
+    xlab=TeX('$\\theta$'), ylab='Log-likelihood')
+abline(v=solutions)
+```
+We get some strange results. Depending on where the search begins, the results are pretty wildly different. starting at 0, 1 and 4.7 yield the correct answer. Of the other ones, some find local maxima, and some just veer off to where the density is so low, that the derivative is basically zero and therefore below the tolerance. 
+
+We also try the mean and the median of the data sample as starting points. Neither of them find the actual global maximum. For a Cauchy dsitribution, the MLE for $\theta$ is actually
+the median, so the mean is somewhat lacking as an estimator here (in fact, the expected
+value of the distribution is undefined). Here, the median as a starting point actually outperforms the mean. 
+
+Here, we plot the first derivative, which gives some insight into the difficulty of 
+solving this by Newton's method, which really just finds the roots of the first derivative.
+```{r}
+plot(theta_space, sapply(theta_space, fprime), 'l', 
+     main=TeX('$l^{\\prime}(\\theta)$'), 
+     xlab=TeX('$\\theta$'), ylab=TeX("$l^{\\prime}(\\theta)$")
+     )
+```
+The log-liklihood function does not have a well behaving first and second derivative, and 
+so Newton's method results in unstable solutions. With a likelihood function like this one, it's a good idea to run many processes over different starting points to find the correct
+solution. 
+
+
+## b) 
+Next, we try the bisection method. We might expect this to work better, as we can bound the search to the part of the plot that we know contains the maximum. 
+```{r}
+bisection <- function(a, b, f_prime, tol=.0001, n=0){
+  x_t <- .5 * (a + b)
+  # Use conditioning to get the next interval
+  if(f_prime(a) * f_prime(x_t) <= 0){
+    new_interval <- c(a, x_t)
+  }else{
+    new_interval <- c(x_t, b)
+  }
+  
+  # if interval is less than the tolerance, stop the recursion.
+  if ((b - a) < tol){
+    print(paste0("The solution is ", round(x_t, 3) , " and it was found in ", n, " iterations."))
+    return(x_t)
+  }else{
+    # If not, call again on the new interval
+    return(bisection(new_interval[1], new_interval[2], f_prime, n=n + 1))  
+  }
+}
+X <- c(1.77, -.23, 2.76, 3.80, 3.47, 56.75, -1.34, 4.24, 
+        -2.44, 3.29, 3.71, -2.40, 4.53, -.07, -1.05, 
+        -13.87, -2.53, -1.75, .27, 43.21)
+
+fprime <- function(theta) sum(2 * (X - theta) / (1 + (X - theta) ^ 2))
+theta_space <- seq(-2, 2, .01)
+theta_f <- sapply(theta_space, function(theta){log_likelihood(theta, X)})
+
+a <- -1; b <- 1;
+solutions <- bisection(a, b, function(theta) fprime(theta), tol=.00001)
+plot(theta_space, theta_f, 'l', 
+    main=TeX('Log-likelihood of Cauchy($\\theta$, 1)' ), 
+    xlab=TeX('$\\theta$'), ylab='Log-likelihood')
+abline(v=c(a, b))
+abline(v=solutions, col='red')
+```
+Using the bisection method yields much better results, as we converge on -.19.
+By visual inspection, this appears to be correct. It is worth noting that it takes many more iterations
+to converge than for the iterations of Newton's method that converged on the correct answer. 
+
+Next, we try several other intervals for the search, trying to trip up the algorithm.
+```{r}
+bisection <- function(a, b, f_prime, tol=.0001, n=0){
+  x_t <- .5 * (a + b)
+  # Use conditioning to get the next interval
+  if(f_prime(a) * f_prime(x_t) <= 0){
+    new_interval <- c(a, x_t)
+  }else{
+    new_interval <- c(x_t, b)
+  }
+  
+  # if interval is less than the tolerance, stop the recursion.
+  if ((b - a) < tol){
+    print(paste0("The solution is ", round(x_t, 3) , " and it was found in ", n, " iterations."))
+    return(x_t)
+  }else{
+    # If not, call again on the new interval
+    return(bisection(new_interval[1], new_interval[2], f_prime, n=n + 1))  
+  }
+}
+X <- c(1.77, -.23, 2.76, 3.80, 3.47, 56.75, -1.34, 4.24, 
+        -2.44, 3.29, 3.71, -2.40, 4.53, -.07, -1.05, 
+        -13.87, -2.53, -1.75, .27, 43.21)
+
+fprime <- function(theta) sum(2 * (X - theta) / (1 + (X - theta) ^ 2))
+theta_space <- seq(-100, 100, .1)
+theta_f <- sapply(theta_space, function(theta){log_likelihood(theta, X)})
+plot(theta_space, theta_f, 'l', 
+main=TeX('Log-likelihood of Cauchy($\\theta$, 1)'), 
+xlab=TeX('$\\theta$'), ylab='Log-likelihood')
+
+lapply(list(interval1 = c(-1, 1, 'black'),
+     interval2 = c(-10, 10, 'green'),
+     interval3 = c(-100, 100, 'blue'), 
+     interval4 = c(20, 80, 'gray')
+     ), function(interval){
+       a <- as.numeric(interval[1]); b <- as.numeric(interval[2]);
+       print(a)
+       print(b)
+       solutions <- bisection(a, b, function(theta) fprime(theta), tol=.00001)
+       theta_space <- seq(a, b, .01)
+       theta_f <- sapply(theta_space, function(theta){log_likelihood(theta, X)})
+       abline(v=c(a, b), col=interval[3])
+       abline(v=solutions, col='red')})
+
+
+```
+
