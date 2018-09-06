@@ -6,8 +6,10 @@ output:
     keep_tex: yes
 geometry: margin=1.5cm
 ---
+\newcommand{\summ}{\Sigma_{i=1}^{n}}
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(latex2exp)
 ```
 # Problem 1
 ## a)
@@ -16,7 +18,6 @@ Let $X = (28, 33, 22, 35)$ be our set of i.i.d data points. The function $s_p(\t
 ## b)
 $s_p(\theta)$ is plotted below, with the R code used to generate the plot. 
 ```{r, warning=FALSE}
-library(latex2exp)
 x <- c(28, 33, 22, 35)
 s_p <- function(theta, x){
   # We implement our function to minimize
@@ -181,12 +182,18 @@ log_likelihood <- function(theta, x){
   return (sum(dcauchy(x, location=theta, scale=1, log=TRUE)))
 }
 
+# Create a space for theta
 theta_space <- seq(-50, 100, .25)
+
+# Create the function results for theta
 theta_f <- sapply(theta_space, function(theta){log_likelihood(theta, X)})
+
+# Plot the likelihood function of theta
 plot(theta_space, theta_f, 'l', 
     main=TeX('Log-likelihood of Cauchy($\\theta$, 1)' ), 
     xlab=TeX('$\\theta$'), ylab='Log-likelihood')
 ```
+
 We note that the log-likelihood values can be negative, as they are not likelihoods, but rather the natural logarithms of those likelihoods.
 
 Next, we find the MLE for $\theta$ using Newton's Method for the set of
@@ -206,9 +213,11 @@ newtons <- function(xt, fprime, f2prime, tol=0.01){
   n <- 0
   xt_update <- xt + 100  
   
+  # While not below the tolerance level, continue updates
   while(abs(fprime(xt)) > tol){
     xt <- ifelse(n == 0, xt, xt_update)
     
+    # Define the updating equation
     xt_update <- xt - (fprime(xt) / f2prime(xt))
     n <- n + 1
   }
@@ -217,29 +226,35 @@ newtons <- function(xt, fprime, f2prime, tol=0.01){
   return(xt_update)
 }
 
+# Define the first derivative
 fprime <- function(theta) sum(2 * (X - theta) / (1 + (X - theta) ^ 2))
 
+# Define the second derivative
 f2prime <- function(theta){
   return(2 * sum (((X - theta) ^ 2 - 1) / (1 + (X - theta) ^ 2 ) ^ 2))
 }
 
-
+# Define the strating point, including mean and median
 starting_points <- c(-11, -1, 0, 1.5, 4, 4.7, 7, 8, 38, mean(X), median(X))
 
+# Call over all the starting points
 solutions <- sapply(starting_points, function(x0){
   print(paste0("Starting Point: ", x0))
   newtons(x0, fprime=fprime, f2prime=f2prime, tol=.0001)
 })
 
 
+# Plot the likelihood function
 theta_space <- seq(-50, 50, .25)
 theta_f <- sapply(theta_space, function(theta){log_likelihood(theta, X)})
-
 plot(theta_space, theta_f, 'l', 
     main=TeX('Log-likelihood of Cauchy($\\theta$, 1)' ), 
     xlab=TeX('$\\theta$'), ylab='Log-likelihood')
-abline(v=solutions)
+
+# Add in all solutions found
+abline(v=solutions, col='red', lty=2, lwd=.5)
 ```
+
 We get some strange results. Depending on where the search begins, the results are pretty wildly different. starting at 0, 1 and 4.7 yield the correct answer. Of the other ones, some find local maxima, and some just veer off to where the density is so low, that the derivative is basically zero and therefore below the tolerance. 
 
 We also try the mean and the median of the data sample as starting points. Neither of them find the actual global maximum. For a Cauchy dsitribution, the MLE for $\theta$ is actually
@@ -254,6 +269,7 @@ plot(theta_space, sapply(theta_space, fprime), 'l',
      xlab=TeX('$\\theta$'), ylab=TeX("$l^{\\prime}(\\theta)$")
      )
 ```
+
 The log-liklihood function does not have a well behaving first and second derivative, and 
 so Newton's method results in unstable solutions. With a likelihood function like this one, it's a good idea to run many processes over different starting points to find the correct
 solution. 
@@ -261,8 +277,9 @@ solution.
 
 ## b) 
 Next, we try the bisection method. We might expect this to work better, as we can bound the search to the part of the plot that we know contains the maximum. 
-```{r}
+```{r, plot_bisection}
 bisection <- function(a, b, f_prime, tol=.0001, n=0){
+  # Define the new split point
   x_t <- .5 * (a + b)
   # Use conditioning to get the next interval
   if(f_prime(a) * f_prime(x_t) <= 0){
@@ -280,49 +297,42 @@ bisection <- function(a, b, f_prime, tol=.0001, n=0){
     return(bisection(new_interval[1], new_interval[2], f_prime, n=n + 1))  
   }
 }
+
+# Define the observed values
 X <- c(1.77, -.23, 2.76, 3.80, 3.47, 56.75, -1.34, 4.24, 
         -2.44, 3.29, 3.71, -2.40, 4.53, -.07, -1.05, 
         -13.87, -2.53, -1.75, .27, 43.21)
 
+# Define the derivative of the function
 fprime <- function(theta) sum(2 * (X - theta) / (1 + (X - theta) ^ 2))
+
+# Create the likelihood function over the space
 theta_space <- seq(-2, 2, .01)
 theta_f <- sapply(theta_space, function(theta){log_likelihood(theta, X)})
 
+# Assign starting interval
 a <- -1; b <- 1;
+
+# Solve over that interval
 solutions <- bisection(a, b, function(theta) fprime(theta), tol=.00001)
+
+# Plot the likelihood function
 plot(theta_space, theta_f, 'l', 
     main=TeX('Log-likelihood of Cauchy($\\theta$, 1)' ), 
     xlab=TeX('$\\theta$'), ylab='Log-likelihood')
-abline(v=c(a, b))
-abline(v=solutions, col='red')
+
+# ADd the interval lines in black
+abline(v=c(a, b), col='red')
+# Add the solution lines in red
+abline(v=solutions, col='red', lty=2)
 ```
+
 Using the bisection method yields much better results, as we converge on -.19.
 By visual inspection, this appears to be correct. It is worth noting that it takes many more iterations
 to converge than for the iterations of Newton's method that converged on the correct answer. 
 
 Next, we try several other intervals for the search, trying to trip up the algorithm.
-```{r}
-bisection <- function(a, b, f_prime, tol=.0001, n=0){
-  x_t <- .5 * (a + b)
-  # Use conditioning to get the next interval
-  if(f_prime(a) * f_prime(x_t) <= 0){
-    new_interval <- c(a, x_t)
-  }else{
-    new_interval <- c(x_t, b)
-  }
-  
-  # if interval is less than the tolerance, stop the recursion.
-  if ((b - a) < tol){
-    print(paste0("The solution is ", round(x_t, 3) , " and it was found in ", n, " iterations."))
-    return(x_t)
-  }else{
-    # If not, call again on the new interval
-    return(bisection(new_interval[1], new_interval[2], f_prime, n=n + 1))  
-  }
-}
-X <- c(1.77, -.23, 2.76, 3.80, 3.47, 56.75, -1.34, 4.24, 
-        -2.44, 3.29, 3.71, -2.40, 4.53, -.07, -1.05, 
-        -13.87, -2.53, -1.75, .27, 43.21)
+```{r, plot_bisection_intervals}
 
 fprime <- function(theta) sum(2 * (X - theta) / (1 + (X - theta) ^ 2))
 theta_space <- seq(-100, 100, .1)
@@ -331,20 +341,137 @@ plot(theta_space, theta_f, 'l',
 main=TeX('Log-likelihood of Cauchy($\\theta$, 1)'), 
 xlab=TeX('$\\theta$'), ylab='Log-likelihood')
 
-lapply(list(interval1 = c(-1, 1, 'black'),
-     interval2 = c(-10, 10, 'green'),
-     interval3 = c(-100, 100, 'blue'), 
-     interval4 = c(20, 80, 'gray')
-     ), function(interval){
+# Iterate over the list of intervals
+holder <- lapply(list(
+        interval2 = c(-10, 10, 'green'),
+        interval3 = c(-100, 100, 'blue'), 
+        interval4 = c(20, 80, 'gray')
+     ), 
+     # Create a function to plot the results of the intervals
+     function(interval){
+       # Define the interval
        a <- as.numeric(interval[1]); b <- as.numeric(interval[2]);
-       print(a)
-       print(b)
+       # Solve the problem 
        solutions <- bisection(a, b, function(theta) fprime(theta), tol=.00001)
-       theta_space <- seq(a, b, .01)
-       theta_f <- sapply(theta_space, function(theta){log_likelihood(theta, X)})
+       
+       # Add thin solid lines for interval bounds
        abline(v=c(a, b), col=interval[3])
-       abline(v=solutions, col='red')})
-
-
+       # Add thick dashed lines for solution
+       abline(v=solutions, col=interval[3], lty=2, lwd=2)})
 ```
+Here, we plot the interval bounds as solid lines, and the solution as dashed lines. Each color represents a different interval. The intervals that include the solution 
+solve the problem correctly. The interval that doesn't converges on one of the endpoints.
+
+
+
+# Problem 4
+## a) We find the MLE for $\lambda$, given a Poisson distribution. The PDF of a Poisson distribution is
+\[
+f(x; \lambda) = \frac{\lambda^{x}\rm{e}^{-\lambda}}{x!}.
+\]
+Therefore, the likelihood function $L(\lambda)$ is the product of the likelihods for each data sample:
+\[
+  L(\lambda) = \prod_{i=1}^{n} \frac{\lambda^{x_i}\rm{e}^{-\lambda}}{x_i!}.
+\]
+and the log-likelihood can be written as the sum of the logs:
+\begin{align*}
+l(\lambda) &=  \log{\prod_{i=1}^{n} \frac{\lambda^{x_i}\rm{e}^{-\lambda}}{x_i!}} \\
+          &= \summ \log{\lambda^{x_i}} - \summ \log{X_i!} - \summ \lambda \\
+          &=  \summ x_i \log{\lambda} - \summ \log{X_i!} - n \lambda.
+\end{align*}
+
+We find the first derivative of the log-likelihood function:
+\[
+l^{\prime}(\lambda) = \summ \frac{x_i}{\lambda} - n,
+\]
+and then find the root:
+ \[
+ 0 = \summ \frac{x_i}{\lambda} - n \implies \lambda = \summ \frac{x_i}{n}.
+ \]
+Therefore, the MLE for $\lambda$ is $\summ(x_i) / n$, which is the mean of the data sample. This is 
+as expected, as the expected value of a Poisson distribution is $\lambda$. 
+
+## b)
+Next, we look for the MLE of $\theta$ in an Exponential Distribution. The PDF of an Exponential distribution is 
+\[
+f(x; \theta) = \theta \rm{e}^{-\theta x}.
+\]
+
+We can write the likelihood function for $\theta$ as
+\[
+L(\theta) = \prod_{i=1}^{n}\theta\rm{e}^{-\theta x_i}, 
+\]
+with the log-likelihood as 
+\begin{align*}
+l(\theta) &= \log{\prod_{i=1}^{n}\theta\rm{e}^{-\theta x_i}} \\
+&= \summ \log{\theta} + \summ{-\theta x_i} \\
+&= n \log{\theta} - \theta \summ x_i.
+\end{align*}
+
+To find the MLE, we find the root of the first derivative:
+\[
+0 = l^{\prime}(\theta) = \frac{n}{\theta} -  \summ x_i \implies \theta = \frac{n}{\summ x_i}.
+\]
+Solving this equation gives us the MLE for $\theta$ as $\theta = \frac{n}{\summ x_i}$. This is as expected, as the 
+expected value of an Exponential($\theta$) distribution is $\frac{1}{\theta}$, and so the MLE for $\theta$ is the reciprocal of the mean. 
+
+# Problem 5
+To find the Fisher Information $I(\theta)$, we use the formula
+\[
+I(\theta) = E[(l^{\prime}(\theta))^2].
+\]
+
+First, we find $L(\theta)$ for a set of $n$ independent Bernoulli trials with parameter $\theta$. This is simply the likelihood function
+for a Binomial distribution:
+\[
+L(\theta; x, n) = {n\choose x} \theta^x (1-\theta)^{n-x}, 
+\]
+with log-likelihood
+\[
+l(\theta) = \log{n \choose k} + x\log{\theta} + (n - x) \log{(1 - \theta)}.
+\]
+
+We first  take the first derivative of the log-likelihood function, 
+\[
+l^{\prime}(\theta) = \frac{x}{\theta} - \frac{n - x}{1- \theta} = 
+\frac{x (1 - \theta)}{\theta(1 - \theta)} - \frac{n\theta - x\theta}{\theta (1 - \theta)} = \frac{x - n \theta}{\theta(1 - \theta)}, 
+\]
+and then square it
+\[
+\left(\frac{x - n \theta}{\theta(1 - \theta)}\right)^2 = \frac{x^2}{\theta^2 (1 - \theta)^2} - \frac{2nx}{\theta(1-\theta)^2} - \frac{n^2}{(1-\theta)^2}.
+\]
+We then take the expected value of this. Using the algebraic properties of the Expected Value function, we can write
+\[
+E((l^{\prime}(\theta)^2) = \frac{1}{\theta^2(1 - \theta)^2}E(X^2) - \frac{2n}{\theta(1-\theta)^2}E(X) + \frac{n^2}{(1 - \theta)^2}.
+\]
+
+We site the textbook's table of distribution to define the following:
+\begin{align*} 
+E(X) &= n \theta \\
+Var(X) &= n \theta (1 - \theta).
+\end{align*}
+
+Note that $Var(X) = E(X^2) - E(X) ^2$, and so $E(X^2) = Var(X) + E(X)^2 = n\theta(1 - \theta)  + n^2 \theta^2$. We can then plug these
+into the formulas above, such that
+\begin{align*}
+E((l^{\prime}(\theta)^2) &= \frac{1}{\theta^2(1 - \theta)^2}E(X^2) - \frac{2n}{\theta(1-\theta)^2}E(X) + \frac{n^2}{(1 - \theta)^2} \\
+&= \frac{n\theta(1 - \theta)  + n^2 \theta^2}{\theta^2(1 - \theta)^2} - 
+          \frac{2n^2\theta^2}{\theta^2(1-\theta)^2} + 
+          \frac{n^2 \theta^2}{\theta^2(1-\theta)^2} \\
+&= \frac{n \theta ( 1- \theta)}{\theta^2 ( 1- \theta)^2} \\
+&= \frac{n}{\theta(1-\theta)}.
+\end{align*}
+Therefore, the Fisher Information can be described as $I(\theta)=\frac{n}{\theta (1 - \theta)}$.
+
+
+
+
+
+
+
+
+
+
+
+
 
