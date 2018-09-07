@@ -69,6 +69,7 @@
 \newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
 \newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
 \newcommand{\NormalTok}[1]{#1}
+\usepackage{longtable,booktabs}
 \usepackage{graphicx,grffile}
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
@@ -644,7 +645,6 @@ We implement the fixed point iteration solver from starting point
     
 \NormalTok{    n <-}\StringTok{ }\NormalTok{n }\OperatorTok{+}\StringTok{ }\DecValTok{1}
 \NormalTok{  \}}
-  \KeywordTok{print}\NormalTok{(}\KeywordTok{paste0}\NormalTok{(}\StringTok{"The solution is: "}\NormalTok{, }\KeywordTok{round}\NormalTok{(xt, }\DecValTok{3}\NormalTok{), }\StringTok{". The algorithm converged in "}\NormalTok{, n, }\StringTok{" iterations with starting point = "}\NormalTok{, starting_point, }\StringTok{" and alpha = "}\NormalTok{, alpha))}
   \KeywordTok{return}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\DataTypeTok{xt=}\NormalTok{xt,  }\DataTypeTok{n=}\NormalTok{n, }\DataTypeTok{starting_point=}\NormalTok{starting_point, }\DataTypeTok{alpha=}\NormalTok{alpha))}
 \NormalTok{\}}
 
@@ -653,17 +653,27 @@ We implement the fixed point iteration solver from starting point
 \NormalTok{fprime <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(theta) }\KeywordTok{sum}\NormalTok{(}\DecValTok{2} \OperatorTok{*}\StringTok{ }\NormalTok{(X }\OperatorTok{-}\StringTok{ }\NormalTok{theta) }\OperatorTok{/}\StringTok{ }\NormalTok{(}\DecValTok{1} \OperatorTok{+}\StringTok{ }\NormalTok{(X }\OperatorTok{-}\StringTok{ }\NormalTok{theta) }\OperatorTok{^}\StringTok{ }\DecValTok{2}\NormalTok{))}
 
 \CommentTok{# start with x0 = -1.}
-\NormalTok{results <-}\StringTok{ }\KeywordTok{sapply}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, .}\DecValTok{64}\NormalTok{, .}\DecValTok{25}\NormalTok{), }\ControlFlowTok{function}\NormalTok{(alpha)\{}
+\NormalTok{results <-}\StringTok{ }\KeywordTok{t}\NormalTok{(}\KeywordTok{sapply}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, .}\DecValTok{64}\NormalTok{, .}\DecValTok{25}\NormalTok{), }\ControlFlowTok{function}\NormalTok{(alpha)\{}
   \KeywordTok{fixed_point_iteration}\NormalTok{(}\OperatorTok{-}\DecValTok{1}\NormalTok{, }\DataTypeTok{fprime=}\NormalTok{fprime, }\DataTypeTok{alpha=}\NormalTok{alpha)  }
-\NormalTok{\})}
+\NormalTok{\}))}
 \end{Highlighting}
 \end{Shaded}
 
-\begin{verbatim}
-## [1] "The solution is: -0.193. The algorithm converged in 2294 iterations with starting point = -1 and alpha = 1"
-## [1] "The solution is: -0.193. The algorithm converged in 196 iterations with starting point = -1 and alpha = 0.64"
-## [1] "The solution is: -0.192. The algorithm converged in 7 iterations with starting point = -1 and alpha = 0.25"
-\end{verbatim}
+\begin{longtable}[]{@{}rrrr@{}}
+\caption{Results of Fixed Point Iteration}\tabularnewline
+\toprule
+Solution & Number of Iterations & Starting Point & Alpha\tabularnewline
+\midrule
+\endfirsthead
+\toprule
+Solution & Number of Iterations & Starting Point & Alpha\tabularnewline
+\midrule
+\endhead
+-0.1926087 & 2294 & -1 & 1.00\tabularnewline
+-0.1927677 & 196 & -1 & 0.64\tabularnewline
+-0.1923656 & 7 & -1 & 0.25\tabularnewline
+\bottomrule
+\end{longtable}
 
 All of the attempts converge on the correct solution, but the scaling
 parameters greatly affect the number of iterations needed to get there.
@@ -672,48 +682,50 @@ below.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{results <-}\StringTok{ }\KeywordTok{lapply}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\OperatorTok{-}\DecValTok{10}\NormalTok{, }\OperatorTok{-}\DecValTok{5}\NormalTok{, }\OperatorTok{-}\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{5}\NormalTok{, }\DecValTok{10}\NormalTok{), }\ControlFlowTok{function}\NormalTok{(x0)\{}
-  \KeywordTok{print}\NormalTok{(}\KeywordTok{paste0}\NormalTok{(}\StringTok{"Starting Point: "}\NormalTok{, x0))}
-  \KeywordTok{return}\NormalTok{(}\KeywordTok{lapply}\NormalTok{(}\KeywordTok{c}\NormalTok{(.}\DecValTok{1}\NormalTok{, .}\DecValTok{3}\NormalTok{, .}\DecValTok{8}\NormalTok{, }\DecValTok{1}\NormalTok{), }\ControlFlowTok{function}\NormalTok{(alpha)\{}
+\NormalTok{results <-}\StringTok{ }\KeywordTok{t}\NormalTok{(}\KeywordTok{do.call}\NormalTok{(cbind, }\KeywordTok{lapply}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\OperatorTok{-}\DecValTok{10}\NormalTok{, }\OperatorTok{-}\DecValTok{5}\NormalTok{, }\OperatorTok{-}\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{5}\NormalTok{, }\DecValTok{10}\NormalTok{), }\ControlFlowTok{function}\NormalTok{(x0)\{}
+  \KeywordTok{return}\NormalTok{(}\KeywordTok{sapply}\NormalTok{(}\KeywordTok{c}\NormalTok{(.}\DecValTok{1}\NormalTok{, .}\DecValTok{3}\NormalTok{, .}\DecValTok{8}\NormalTok{, }\DecValTok{1}\NormalTok{), }\ControlFlowTok{function}\NormalTok{(alpha)\{}
     \KeywordTok{fixed_point_iteration}\NormalTok{(x0, }\DataTypeTok{fprime=}\NormalTok{fprime, }\DataTypeTok{alpha=}\NormalTok{alpha, }\DataTypeTok{max_iter=}\DecValTok{100000}\NormalTok{)  }
 \NormalTok{  \}))  }
-  
-\NormalTok{\})}
+\NormalTok{\})))}
 \end{Highlighting}
 \end{Shaded}
 
-\begin{verbatim}
-## [1] "Starting Point: -10"
-## [1] "The solution is: -0.194. The algorithm converged in 37 iterations with starting point = -10 and alpha = 0.1"
-## [1] "The solution is: -0.192. The algorithm converged in 11 iterations with starting point = -10 and alpha = 0.3"
-## [1] "The solution is: 0.372. The algorithm converged in 1e+05 iterations with starting point = -10 and alpha = 0.8"
-## [1] "The solution is: 2.642. The algorithm converged in 1e+05 iterations with starting point = -10 and alpha = 1"
-## [1] "Starting Point: -5"
-## [1] "The solution is: -0.194. The algorithm converged in 24 iterations with starting point = -5 and alpha = 0.1"
-## [1] "The solution is: -0.192. The algorithm converged in 5 iterations with starting point = -5 and alpha = 0.3"
-## [1] "The solution is: -0.802. The algorithm converged in 1e+05 iterations with starting point = -5 and alpha = 0.8"
-## [1] "The solution is: -0.192. The algorithm converged in 7 iterations with starting point = -5 and alpha = 1"
-## [1] "Starting Point: -1"
-## [1] "The solution is: -0.194. The algorithm converged in 18 iterations with starting point = -1 and alpha = 0.1"
-## [1] "The solution is: -0.192. The algorithm converged in 5 iterations with starting point = -1 and alpha = 0.3"
-## [1] "The solution is: -0.802. The algorithm converged in 1e+05 iterations with starting point = -1 and alpha = 0.8"
-## [1] "The solution is: -0.193. The algorithm converged in 2294 iterations with starting point = -1 and alpha = 1"
-## [1] "Starting Point: 1"
-## [1] "The solution is: -0.19. The algorithm converged in 20 iterations with starting point = 1 and alpha = 0.1"
-## [1] "The solution is: -0.192. The algorithm converged in 6 iterations with starting point = 1 and alpha = 0.3"
-## [1] "The solution is: -0.802. The algorithm converged in 1e+05 iterations with starting point = 1 and alpha = 0.8"
-## [1] "The solution is: -0.192. The algorithm converged in 9344 iterations with starting point = 1 and alpha = 1"
-## [1] "Starting Point: 5"
-## [1] "The solution is: 2.82. The algorithm converged in 20 iterations with starting point = 5 and alpha = 0.1"
-## [1] "The solution is: 2.817. The algorithm converged in 13 iterations with starting point = 5 and alpha = 0.3"
-## [1] "The solution is: 2.817. The algorithm converged in 22 iterations with starting point = 5 and alpha = 0.8"
-## [1] "The solution is: 2.929. The algorithm converged in 1e+05 iterations with starting point = 5 and alpha = 1"
-## [1] "Starting Point: 10"
-## [1] "The solution is: 2.82. The algorithm converged in 29 iterations with starting point = 10 and alpha = 0.1"
-## [1] "The solution is: 2.818. The algorithm converged in 9 iterations with starting point = 10 and alpha = 0.3"
-## [1] "The solution is: 0.372. The algorithm converged in 1e+05 iterations with starting point = 10 and alpha = 0.8"
-## [1] "The solution is: -0.193. The algorithm converged in 21769 iterations with starting point = 10 and alpha = 1"
-\end{verbatim}
+\begin{longtable}[]{@{}rrrr@{}}
+\caption{Results of Fixed Point Iteration}\tabularnewline
+\toprule
+Solution & Number of Iterations & Starting Point & Alpha\tabularnewline
+\midrule
+\endfirsthead
+\toprule
+Solution & Number of Iterations & Starting Point & Alpha\tabularnewline
+\midrule
+\endhead
+-0.1939787 & 37 & -10 & 0.1\tabularnewline
+-0.1923074 & 11 & -10 & 0.3\tabularnewline
+0.3720408 & 100000 & -10 & 0.8\tabularnewline
+2.6415064 & 100000 & -10 & 1.0\tabularnewline
+-0.1941545 & 24 & -5 & 0.1\tabularnewline
+-0.1923103 & 5 & -5 & 0.3\tabularnewline
+-0.8024924 & 100000 & -5 & 0.8\tabularnewline
+-0.1920627 & 7 & -5 & 1.0\tabularnewline
+-0.1939695 & 18 & -1 & 0.1\tabularnewline
+-0.1923041 & 5 & -1 & 0.3\tabularnewline
+-0.8024924 & 100000 & -1 & 0.8\tabularnewline
+-0.1926087 & 2294 & -1 & 1.0\tabularnewline
+-0.1902990 & 20 & 1 & 0.1\tabularnewline
+-0.1922690 & 6 & 1 & 0.3\tabularnewline
+-0.8024924 & 100000 & 1 & 0.8\tabularnewline
+-0.1921332 & 9344 & 1 & 1.0\tabularnewline
+2.8202633 & 20 & 5 & 0.1\tabularnewline
+2.8172474 & 13 & 5 & 0.3\tabularnewline
+2.8170617 & 22 & 5 & 0.8\tabularnewline
+2.9290552 & 100000 & 5 & 1.0\tabularnewline
+2.8202693 & 29 & 10 & 0.1\tabularnewline
+2.8177720 & 9 & 10 & 0.3\tabularnewline
+0.3720408 & 100000 & 10 & 0.8\tabularnewline
+-0.1926818 & 21769 & 10 & 1.0\tabularnewline
+\bottomrule
+\end{longtable}
 
 We can see that the starting point and scaling parameters heavily
 impacts the convergence of the algorithm to the correct solution.
@@ -747,8 +759,6 @@ secant method to estimate \(\theta\).
   
   \KeywordTok{return}\NormalTok{(xt)}
 \NormalTok{\}}
-
-\KeywordTok{print}\NormalTok{(}\StringTok{"Starting points of (-2, 1)"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -756,71 +766,29 @@ secant method to estimate \(\theta\).
 ## [1] "Starting points of (-2, 1)"
 \end{verbatim}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{results1 <-}\StringTok{ }\KeywordTok{secant_method}\NormalTok{(}\OperatorTok{-}\DecValTok{2}\NormalTok{, }\OperatorTok{-}\DecValTok{1}\NormalTok{, }\DataTypeTok{fprime=}\NormalTok{fprime)}
-\end{Highlighting}
-\end{Shaded}
-
 \begin{verbatim}
 ## [1] "The solution is: -0.192286493714121. The algorithm converged in 5 iterations"
 \end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{print}\NormalTok{(}\StringTok{"Starting points of (-3, 3)"}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
 
 \begin{verbatim}
 ## [1] "Starting points of (-3, 3)"
 \end{verbatim}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{results2 <-}\StringTok{ }\KeywordTok{secant_method}\NormalTok{(}\OperatorTok{-}\DecValTok{3}\NormalTok{, }\DecValTok{3}\NormalTok{, }\DataTypeTok{fprime=}\NormalTok{fprime)}
-\end{Highlighting}
-\end{Shaded}
-
 \begin{verbatim}
 ## [1] "The solution is: 2.81746622667055. The algorithm converged in 5 iterations"
 \end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{print}\NormalTok{(}\StringTok{"Starting Points of (-2, 3)"}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
 
 \begin{verbatim}
 ## [1] "Starting Points of (-2, 3)"
 \end{verbatim}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{results3 <-}\StringTok{ }\KeywordTok{secant_method}\NormalTok{(}\OperatorTok{-}\DecValTok{2}\NormalTok{, }\DecValTok{3}\NormalTok{, }\DataTypeTok{fprime=}\NormalTok{fprime)}
-\end{Highlighting}
-\end{Shaded}
-
 \begin{verbatim}
 ## [1] "The solution is: 2.81747656517513. The algorithm converged in 6 iterations"
 \end{verbatim}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{print}\NormalTok{(}\StringTok{"Starting Points of (-4, -4.5)"}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
 \begin{verbatim}
 ## [1] "Starting Points of (-4, -4.5)"
 \end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{results3 <-}\StringTok{ }\KeywordTok{secant_method}\NormalTok{(}\OperatorTok{-}\DecValTok{4}\NormalTok{, }\OperatorTok{-}\FloatTok{4.5}\NormalTok{, }\DataTypeTok{fprime=}\NormalTok{fprime)}
-\end{Highlighting}
-\end{Shaded}
 
 \begin{verbatim}
 ## [1] "The solution is: -1.94676563893071e+154. The algorithm converged in 738 iterations"
@@ -860,6 +828,15 @@ in different ways.
   performance. It seems difficult to pick starting points that work,
   even when examining the function manually.
 \end{enumerate}
+
+Intuitively, stability and speed should be a trade off, as an exhaustive
+search will be entirely stable, and a random selection will be entirely
+unstable, so this makes sense. Additional considerations should center
+around the difficulty of calculating the second derivative, as this
+could be a primary motivation for using the secant method, and the
+function at hand. If the function is unimodel, a fast search can likely
+be employed successfully. If the search space is small and the function
+is difficult, a more robust, slower search may be a better option.
 
 \section{Problem 4}\label{problem-4}
 

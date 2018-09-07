@@ -10,6 +10,7 @@ geometry: margin=1.5cm
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(latex2exp)
+library(knitr)
 ```
 # Problem 1
 ## a)
@@ -380,7 +381,6 @@ fixed_point_iteration <- function(x0, fprime, alpha=1, max_iter=100000, tol=.001
     
     n <- n + 1
   }
-  print(paste0("The solution is: ", round(xt, 3), ". The algorithm converged in ", n, " iterations with starting point = ", starting_point, " and alpha = ", alpha))
   return(c(xt=xt,  n=n, starting_point=starting_point, alpha=alpha))
 }
 
@@ -389,20 +389,27 @@ fixed_point_iteration <- function(x0, fprime, alpha=1, max_iter=100000, tol=.001
 fprime <- function(theta) sum(2 * (X - theta) / (1 + (X - theta) ^ 2))
 
 # start with x0 = -1.
-results <- sapply(c(1, .64, .25), function(alpha){
+results <- t(sapply(c(1, .64, .25), function(alpha){
   fixed_point_iteration(-1, fprime=fprime, alpha=alpha)  
-})
+}))
+```
+```{r, echo=FALSE}
+knitr::kable(results, caption="Results of Fixed Point Iteration", 
+             col.names=c("Solution", "Number of Iterations", "Starting Point", "Alpha"))
 ```
 
 All of the attempts converge on the correct solution, but the scaling parameters greatly affect the number of iterations needed to get there. We experiment with different starting points and scaling parameters below.
 ```{r 3_c_2}
-results <- lapply(c(-10, -5, -1, 1, 5, 10), function(x0){
-  print(paste0("Starting Point: ", x0))
-  return(lapply(c(.1, .3, .8, 1), function(alpha){
+results <- t(do.call(cbind, lapply(c(-10, -5, -1, 1, 5, 10), function(x0){
+  return(sapply(c(.1, .3, .8, 1), function(alpha){
     fixed_point_iteration(x0, fprime=fprime, alpha=alpha, max_iter=100000)  
   }))  
-  
-})
+})))
+```
+
+```{r, echo=FALSE}
+knitr::kable(results, caption="Results of Fixed Point Iteration", 
+             col.names=c("Solution", "Number of Iterations", "Starting Point", "Alpha"))
 
 ```
 
@@ -428,6 +435,8 @@ secant_method <- function(x0, x1, fprime, max_iter=100000, tol=.001){
   return(xt)
 }
 
+```
+```{r, echo=FALSE}
 print("Starting points of (-2, 1)")
 results1 <- secant_method(-2, -1, fprime=fprime)
 print("Starting points of (-3, 3)")
@@ -436,8 +445,8 @@ print("Starting Points of (-2, 3)")
 results3 <- secant_method(-2, 3, fprime=fprime)
 print("Starting Points of (-4, -4.5)")
 results3 <- secant_method(-4, -4.5, fprime=fprime)
-
 ```
+
 We see a pretty wide variety of results, entirely dependant on the parameterization of the starting points. 
 The takeaway here may be that this method requires a very careful selection of starting points, based on the 
 plot of the function being maximized. The first set of points converges quickly and to the correct answer. The rest do not. 
@@ -456,6 +465,8 @@ win in performance, but less so in stability.
 
 4.  The secant method performs well when it finds the right thing, but it often doesn't, and the starting points appear to really
 tank the performance. It seems difficult to pick starting points that work, even when examining the function manually. 
+
+Intuitively, stability and speed should be a trade off, as an exhaustive search will be entirely stable, and a random selection will be entirely unstable, so this makes sense. Additional considerations should center around the difficulty of calculating the second derivative, as this could be a primary motivation for using the secant method, and the function at hand. If the function is unimodel, a fast search can likely be employed successfully. If the search space is small and the function is difficult, a more robust, slower search may be a better option.
 
 # Problem 4
 ## a) We find the MLE for $\lambda$, given a Poisson distribution. The PDF of a Poisson distribution is
