@@ -396,18 +396,66 @@ results <- sapply(c(1, .64, .25), function(alpha){
 
 All of the attempts converge on the correct solution, but the scaling parameters greatly affect the number of iterations needed to get there. We experiment with different starting points and scaling parameters below.
 ```{r 3_c_2}
-results <- sapply(c(-10, -5, -1, 1, 5, 10), function(x0){
-  return(sapply(c(.1, .3, .8, 1), function(alpha){
+results <- lapply(c(-10, -5, -1, 1, 5, 10), function(x0){
+  print(paste0("Starting Point: ", x0))
+  return(lapply(c(.1, .3, .8, 1), function(alpha){
     fixed_point_iteration(x0, fprime=fprime, alpha=alpha, max_iter=100000)  
   }))  
+  
 })
 
 ```
 
+We can see that the starting point and scaling parameters heavily impacts the convergence of the algorithm to the correct solution. Smaller scaling parameters tend to work better, with with those around $.3$ usually converging the fastest. Additionally, a scaling parameter of $.8$ reliably fails from all starting points. This reiterates the need to run parallel processes across various parameters to get a sense for the true result.
+
 ## d) 
 Using starting values $(\theta^{(0)}, \theta^{(1)}) \in \{(-2, -1), (-3, 3)\}$, we apply the secant method to estimate $\theta$. 
+```{r 3_d_1}
+secant_method <- function(x0, x1, fprime, max_iter=100000, tol=.001){
+  n <- 0
+  
+  while((n < 1 | abs(x0 - x1) > tol) & n < max_iter){
+    # Define the updating equation
+    xt <- x1 - fprime(x1) * (x1 - x0) / (fprime(x1) - fprime(x0))
+    
+    # Iterate on update
+    x0 <- x1; x1 <- xt;  
+    
+    n <- n + 1
+  }
+  print(paste0("The solution is: ", xt, ". The algorithm converged in ", n, " iterations"))
+  
+  return(xt)
+}
 
+print("Starting points of (-2, 1)")
+results1 <- secant_method(-2, -1, fprime=fprime)
+print("Starting points of (-3, 3)")
+results2 <- secant_method(-3, 3, fprime=fprime)
+print("Starting Points of (-2, 3)")
+results3 <- secant_method(-2, 3, fprime=fprime)
+print("Starting Points of (-4, -4.5)")
+results3 <- secant_method(-4, -4.5, fprime=fprime)
 
+```
+We see a pretty wide variety of results, entirely dependant on the parameterization of the starting points. 
+The takeaway here may be that this method requires a very careful selection of starting points, based on the 
+plot of the function being maximized. The first set of points converges quickly and to the correct answer. The rest do not. 
+The 2nd pair of points given in the text find a different root of the derivative. Some other points tried find the wrong root,
+as well as run off to divergence before stopping when the likelihood function levels off. 
+
+## e) 
+To compare the results takes some nuance, as different algorithms excel in different ways. 
+
+1.  The bisection method has stability, but comes with a performance drawback. 
+
+2.  Fixed point iteration is the most unstable, as various starting points and scaling parameters simply fail, with small changes in inputs leading to large changes in outputs. 
+
+3.  Newton's Method is extremely fast when it starts in the right place and isn't tripped up by unusual function behavior. Again, a
+win in performance, but less so in stability. 
+
+4.  The secant method performs well when it finds the right thing, but it often doesn't, and the starting points appear to really
+tank the performance. It seems difficult to pick starting points that work, even when examining the function manually. 
 
 # Problem 4
 ## a) We find the MLE for $\lambda$, given a Poisson distribution. The PDF of a Poisson distribution is
