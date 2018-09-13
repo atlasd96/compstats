@@ -1,0 +1,95 @@
+---
+title: "Atlas-PS 3"
+author: "David Atlas"
+date: "September 12, 2018"
+output: pdf_document
+---
+\newcommand{\summ}{\Sigma_{i=1}^{n}}
+\newcommand{\prodd}{\prod_{i=1}^{n}}
+\newcommand{\pha}{\alpha_1 b_{i, 1} + \alpha_2 b_{i, 2}}
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Problem 1
+We define the likelihood function $L(\hat{\alpha}; X)$:
+\[
+L(\alpha; X) = \prodd \frac{(\pha)^{x_i} \mathrm{e}^{-(\pha)}}{x_i!},
+\]
+and the log-likelihood function  $l(\hat{\alpha}; X)$:
+\[
+l(\alpha; X) = \summ x_i \log{\pha} - \summ{\alpha_1 b_{i, 1}} - 
+  \summ{\alpha_2 b_{i,2}} - \summ \log(x_i !).
+\]
+
+## a) 
+Derive the Newton Raphson update for finding the MLEs of $\alpha_1$ and $alpha_2$.
+
+First, we take the first derivative of $l^\prime$ with respect to $\hat{\alpha}$. This leaves us with a $2$x$1$ matrix of first derivatives.
+\[
+\begin{bmatrix}
+\summ \frac{x_i b_{i, 1}}{\pha} - \summ b_{i, 1} \\
+\summ \frac{x_i b_{i, 2}}{\pha} - \summ b_{i, 2}
+\end{bmatrix}.
+\]
+
+We find the Hessian:
+\[
+\begin{bmatrix}
+\summ \frac{-x_i b_{i, 1}^2}{(\pha)^2} && 
+\summ \frac{-x_i b_{i, 1}b_{i, 2}}{(\pha)^2} \\
+\summ \frac{-x_i b_{i, 1}b_{i, 2}}{(\pha)^2} &&
+\summ \frac{-x_i b_{i, 2}^2}{(\pha)^2}
+\end{bmatrix}
+\]
+
+The Newton-Raphson update is $h=-\bf{l}^{\prime\prime}(\bf{\theta})^{-1}\bf{l}^\prime(\bf{\theta})$. We combine the two of them below:
+
+\[
+h(\alpha) = - \begin{bmatrix}
+\summ \frac{-x_i b_{i, 1}^2}{(\pha)^2} && 
+\summ \frac{-x_i b_{i, 1}b_{i, 2}}{(\pha)^2} \\
+\summ \frac{-x_i b_{i, 1}b_{i, 2}}{(\pha)^2} &&
+\summ \frac{-x_i b_{i, 2}^2}{(\pha)^2}
+\end{bmatrix}^{-1} 
+\begin{bmatrix}
+\summ \frac{x_i b_{i, 1}}{\pha} - \summ b_{i, 1} \\
+\summ \frac{x_i b_{i, 2}}{\pha} - \summ b_{i, 2}
+\end{bmatrix}.
+\]
+
+
+## b) 
+Derive the Fisher Scoring update.
+
+We take the Hessian calculated above. We site the textbook for 
+expected value for a $X \sim \rm{Poisson}(\lambda)$ distribution: $E(X)=\lambda$. We also point out that the expected value of a sum is equal to the sum of expected values, or $\summ E(X) = E(\summ x)$.
+
+As such, we can write the Fisher Information $I(\alpha) = -\rm{E}(l^{\prime\prime}(\alpha))$ as:
+\begin{align*}
+-\begin{bmatrix}
+\summ \frac{-\rm{E}(x_i) b_{i, 1}^2}{(\pha)^2} && 
+\summ \frac{-\rm{E}(x_i) b_{i, 1}b_{i, 2}}{(\pha)^2} \\
+\summ \frac{-\rm{E}(x_i) b_{i, 1}b_{i, 2}}{(\pha)^2} &&
+\summ \frac{-\rm{E}(x_i) b_{i, 2}^2}{(\pha)^2}
+\end{bmatrix} &= -\begin{bmatrix}
+\summ \frac{-(\pha) b_{i, 1}^2}{(\pha)^2} && 
+\summ \frac{-(\pha) b_{i, 1}b_{i, 2}}{(\pha)^2} \\
+\summ \frac{-(\pha) b_{i, 1}b_{i, 2}}{(\pha)^2} &&
+\summ \frac{-(\pha) b_{i, 2}^2}{(\pha)^2}
+\end{bmatrix} \\ &= 
+\begin{bmatrix}
+\summ \frac{b_{i, 1}^2}{(\pha)} && 
+\summ \frac{b_{i, 1}b_{i, 2}}{(\pha)} \\
+\summ \frac{b_{i, 1}b_{i, 2}}{(\pha)} &&
+\summ \frac{b_{i, 2}^2}{(\pha)}
+\end{bmatrix}. 
+\end{align*}
+
+We can then write the Fisher Scoring update as:
+```{r}
+
+```
+
+
