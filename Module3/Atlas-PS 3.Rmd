@@ -160,8 +160,8 @@ log_likelihood <- function(alpha, b, x){
 }
 
 # we construct agrid of the likelihood function to plot the contours
-a1 <- seq(0.1, 2, .01)
-a2 <- seq(0.1, 2, .01)
+a1 <- seq(0.5, 1.5, .01)
+a2 <- seq(0.5, 1.5, .01)
 alpha_space <- as.matrix(expand.grid(a1, a2)) # Create cartesian product
 
 # Find the likelihod for all pairs
@@ -173,9 +173,12 @@ results <- data.frame(cbind(
 # Add column names
 colnames(results) <- c("alpha1", "alpha2", "likelihood") 
 
+n_bin <- 100
+
+
 # Plot the contours with the solution in red
 ggplot(results) + 
-  geom_contour(aes(x=alpha1, y=alpha2, z=likelihood), bins=1000) + 
+  geom_contour(aes(x=alpha1, y=alpha2, z=likelihood), bins=n_bin) + 
   geom_point(aes(x=solution[1], y=solution[2]), colour="red") +
   xlab(TeX("$\\alpha_1$")) + ylab(TeX("$\\alpha_2$")) + 
   ggtitle("Contour Plot of the Likelihood Function") +
@@ -225,34 +228,73 @@ The solution is given as $\alpha = [1.097, .938]$, converging in 6 iterations. B
 as the two techniques are quite similar.
 
 ```{r}
-log_likelihood <- function(alpha, b, x){
-  return(sum(x * log(b %*% alpha)) - sum(alpha[1] * b[, 1]) 
-         - sum(alpha[2] * b[, 2]) - sum(log(factorial(x))))
-}
-
-# we construct agrid of the likelihood function to plot the contours
-a1 <- seq(0.1, 2, .01)
-a2 <- seq(0.1, 2, .01)
-alpha_space <- as.matrix(expand.grid(a1, a2)) # Create cartesian product
-
-# Find the likelihod for all pairs
-results <- data.frame(cbind(
-  alpha_space, apply(
-    alpha_space, 1, 
-      function(alpha) log_likelihood(alpha, b=b, x=x))))
-
-# Add column names
-colnames(results) <- c("alpha1", "alpha2", "likelihood") 
-
 # Plot the contours with the solution in red
 ggplot(results) + 
-  geom_contour(aes(x=alpha1, y=alpha2, z=likelihood), bins=1000) + 
+  geom_contour(aes(x=alpha1, y=alpha2, z=likelihood), bins=n_bin) + 
   geom_point(aes(x=solution[1], y=solution[2]), colour="green") +
   xlab(TeX("$\\alpha_1$")) + ylab(TeX("$\\alpha_2$")) + 
   ggtitle("Contour Plot of the Likelihood Function") +
   labs(caption="Note: The solution using Fisher Scoring is shown in green.")
 ```
 
+Both algorithms converge to the same solution, given a starting point near the correct solution. Fisher scoring takes 2 more iterations to get there, but roughly comparable. The computation implementation ease is nearly identical, although because we used the Hessian to get the Fisher Information, it was an extra step of derivation over Newton's Method. If the Hessian was more difficult to find, Fisher Scoring would make more sense. 
+
+## e)
+
+Next, we implement the method of steepest ascent, and apply it to the problem. We already have the first derivative of the log-likelihood function above, and so we do not need any further derivation to use the steepest ascent algorithm with backtracking.
+
+```{r}
+
+steepest_ascent <- function(f, fprime, alpha0, b, x, max_iter=10000, tol=.001){
+  alpha_t <- alpha0
+  path <- matrix(ncol=length(alpha0), nrow=0)
+  
+  # Iterate through 
+  for (n in 1:max_iter){
+    
+    # Set stopping conditions
+    if(sum((alpha0 - alpha_t)^2) < tol & n > 1){break}
+    
+    alpha0 <- alpha_t
+    
+    # Reset the backtrack scaling to 1
+    backtrack <- 1 
+    
+    # Get the update h
+    fprime_x <- fprime(alpha0, b, x)
+    M <- diag(length(fprime_x))
+    h_t <- backtrack * (solve(M) %*% fprime_x)
+    
+    # While the next point would be negative, backtrack (divide by 2)
+    while(f(alpha0 + h_t, b, x) < f(alpha0, b, x)){
+      backtrack <- backtrack / 2 
+      h_t <- backtrack * (solve(M) %*% fprime_x)
+    }
+
+    # Iterate to the next point    
+    alpha_t <- alpha0 + h_t
+    path <- rbind(path, t(alpha0))
+  }
+  
+  return(list(path=path, n=n, alpha_t=alpha_t))
+}
+
+solutions <- steepest_ascent(log_likelihood, fprime, c(1, 1), b=b, x=x, tol=.00001)
+```
+
+The solver works effectively, finding $\alpha = [1.095, .941]$ in 14 iterations. This is a bit slower than the
+methods above (Newton's and Fisher Scoring). However, the derivation here is much easier, as you only need the first derivative and the likelihood function (no second derivative or Fisher Information). Below, we plot the solution, and the path taken to get there. 
+
+```{r}
+# Plot the contours with the solution in red
+ggplot(results) + 
+  geom_contour(aes(x=alpha1, y=alpha2, z=likelihood), bins=n_bin) + 
+  geom_point(aes(x=solutions$alpha_t[1], y=solutions$alpha_t[2]), colour="purple") +
+  geom_path(data=data.frame(solutions$path), aes(x=X1, y=X2)) +
+  xlab(TeX("$\\alpha_1$")) + ylab(TeX("$\\alpha_2$")) + 
+  ggtitle("Contour Plot of the Likelihood Function") +
+  labs(caption="Note: The solution using steepest ascent is shown in purple, with the path taken to get there.")
+```
 
 
 
