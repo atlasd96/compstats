@@ -8,13 +8,7 @@ output: pdf_document
 \newcommand{\prodd}{\prod_{i=1}^{n}}
 \newcommand{\pha}{\alpha_1 b_{i, 1} + \alpha_2 b_{i, 2}}
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-library(ggplot2)
-library(RColorBrewer)
-library(latex2exp)
 
-```
 
 # Problem 1
 We define the likelihood function $L(\hat{\alpha}; X)$:
@@ -107,7 +101,8 @@ We can then write the Fisher Scoring update, $I(\theta)^{-1} l^\prime(\theta)$ a
 
 ## c) 
 We implement Newton's Method. 
-```{r}
+
+```r
 oil <- read.table("../datasets/oilspills.dat", header=TRUE)
 
 fprime <- function(alpha, b, x){
@@ -153,7 +148,8 @@ solution <- newtons_method(fprime, f2prime, c(1, 1), b, x, tol=.00001)
 The solution is given as $\alpha = [1.097, .938]$, converging in 4 iterations. Below, the contour plot for the likelihood function is shown, with the red dot labelling the given solution. We see that the algorithm appears to have converged on the solution. 
 
 
-```{r}
+
+```r
 log_likelihood <- function(alpha, b, x){
   return(sum(x * log(b %*% alpha)) - sum(alpha[1] * b[, 1]) 
          - sum(alpha[2] * b[, 2]) - sum(log(factorial(x))))
@@ -182,9 +178,12 @@ ggplot(results) +
   labs(caption="Note: The solution using the Newton-Raphson method is shown in red.")
 ```
 
+![](Atlas-PS_3_files/figure-latex/unnamed-chunk-2-1.pdf)<!-- --> 
+
 Next, we implement the Fisher Scoring algorithm. 
 
-```{r}
+
+```r
 # We implement the Fisher scoring update method
 
 I <- function(alpha, b, x){
@@ -224,7 +223,8 @@ solution <- fisher_scoring(I=I, fprime=fprime, alpha0=c(1, 1), b=b, x=x, tol=.00
 The solution is given as $\alpha = [1.097, .938]$, converging in 6 iterations. Below, the contour plot for the likelihood function is shown, with the green dot labelling the given solution. We see that the algorithm appears to have converged on the solution. Note that this is the same solution seen above with Newton's Algorithm. This is as expected,
 as the two techniques are quite similar.
 
-```{r}
+
+```r
 log_likelihood <- function(alpha, b, x){
   return(sum(x * log(b %*% alpha)) - sum(alpha[1] * b[, 1]) 
          - sum(alpha[2] * b[, 2]) - sum(log(factorial(x))))
@@ -252,6 +252,8 @@ ggplot(results) +
   ggtitle("Contour Plot of the Likelihood Function") +
   labs(caption="Note: The solution using Fisher Scoring is shown in green.")
 ```
+
+![](Atlas-PS_3_files/figure-latex/unnamed-chunk-4-1.pdf)<!-- --> 
 
 
 
