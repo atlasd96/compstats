@@ -7,6 +7,7 @@ output: pdf_document
 \newcommand{\summ}{\Sigma_{i=1}^{n}}
 \newcommand{\prodd}{\prod_{i=1}^{n}}
 \newcommand{\pha}{\alpha_1 b_{i, 1} + \alpha_2 b_{i, 2}}
+\newcommand{\gaus}[1]{\phi(x; \mu_{#1}, \sigma_{#1}^2)}
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -297,8 +298,17 @@ ggplot(results) +
 ```
 
 
+# Problem 2
+## a) Show that the complete-data log-likelihood function is [FILL IN HERE]
 
-
+Given the complete-data density for $Y$
+\[
+p(x_i, z_i|\theta) = [\pi \phi(x; \mu_1, \sigma_1^2)]^{z_i}[(1 - \pi)\gaus{2}]^{(1 - z_i)},
+\]
+we can write the complete log-likelihood function for $\theta$ as the product of $n$ random draws from the distribution of $Y$:
+\[
+L(\theta| x, z)=\prodd[\pi\gaus{1}]^{z_i}[(1 - \pi) \gaus{2}]^{(1 - z_i)}
+\]
 
 
 
