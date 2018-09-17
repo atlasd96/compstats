@@ -428,7 +428,44 @@ for each of the unknown parameters and find their roots. We use the proportional
 &= \frac{1}{n - \eta^{(k)}} \summ (1 - \eta^{(k)}_i)(x_i - \mu_2^{(k)})^2
 \end{align*}
 
+## f) 
 
+Let `q` be a function that returns the expectation $Q(\theta | \theta^{(t)})$. We found the closed form of this equation in Part C above, so 
+we simply code this function from that closed form. This gives us values for the vector $\hat{z}$
+
+Let `q_updates` be a function that finds $\arg \max_\theta Q(\theta | \theta^{(t)})$ for vectors $\theta^{(t)}$ and $\hat{z}$. As we found each of the first derivative roots above, 
+we simply code those closed form solutions into the function and return their calculated values.
+
+Let `x` be the observations of the variable $x$. 
+
+Let `theta0` be a reasonable set of starting values for the elements of $\theta$.
+
+Let `epsilon` be the convergence value, such that when the Euclidean distance between values $\theta^{(t)}$ and $\theta^{(t + 1)}$ are 
+less than `epsilon`, the algorithm has converged, and stops iterating. 
+
+```
+EM Algorithm(q, q_updates, x, theta0, epsilon)
+  # Assign a value for theta_t that won't be convergent
+  theta_t = theta0
+  theta0 = theta_t + 1000
+  
+  # While convergence is not met
+  while sum((theta0 - theta_t) ^ 2) < epsilon do 
+    # Update the value with the next iteration
+    theta0 = theta_t
+    
+    # The expectation step
+    zhat = q(theta0)
+    
+    # The maximization step
+    theta_t = q_updates(theta0)
+
+  return theta_t
+
+```
+
+Given the closed form solutions derived in earlier steps, the algorithm is extremely simple, as most of the heavy lifting 
+has been done above manually. 
 
 
 
