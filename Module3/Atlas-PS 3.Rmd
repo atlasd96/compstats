@@ -2,12 +2,18 @@
 title: "Atlas-PS 3"
 author: "David Atlas"
 date: "September 12, 2018"
-output: pdf_document
+output: 
+  pdf_document: 
+    keep_tex: yes
+header-includes:
+   - \usepackage{amssymb}
 ---
 \newcommand{\summ}{\Sigma_{i=1}^{n}}
 \newcommand{\prodd}{\prod_{i=1}^{n}}
 \newcommand{\pha}{\alpha_1 b_{i, 1} + \alpha_2 b_{i, 2}}
-\newcommand{\gaus}[1]{\phi(x; \mu_{#1}, \sigma_{#1}^2)}
+\newcommand{\gaus}[1]{\phi(x_i; \mu_{#1}, \sigma_{#1}^2)}
+\newcommand{\gausk}[1]{\phi(x_i; \mu_{#1}^{(k)}, (\sigma_{#1}^2)^{(k)})}
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -299,7 +305,9 @@ ggplot(results) +
 
 
 # Problem 2
-## a) Show that the complete-data log-likelihood function is [FILL IN HERE]
+## a) 
+Show that the complete-data log-likelihood function is 
+$\log{\pi} \summ z_i + \summ z_i \log{\gaus{1}} + \log{(1-\pi)}(n - \summ z_i) + \summ (1 - z_i)\log{\gaus{2}}$
 
 Given the complete-data density for $Y$
 \[
@@ -307,8 +315,125 @@ p(x_i, z_i|\theta) = [\pi \phi(x; \mu_1, \sigma_1^2)]^{z_i}[(1 - \pi)\gaus{2}]^{
 \]
 we can write the complete log-likelihood function for $\theta$ as the product of $n$ random draws from the distribution of $Y$:
 \[
-L(\theta| x, z)=\prodd[\pi\gaus{1}]^{z_i}[(1 - \pi) \gaus{2}]^{(1 - z_i)}
+L(\theta| x, z)=\prodd[\pi\gaus{1}]^{z_i}[(1 - \pi) \gaus{2}]^{(1 - z_i)}.
 \]
+
+We take can then write the log-likelihood 
+\begin{align*}
+l(\theta | x, z) &= \summ \log(\pi \gaus{1})^{z_i} + \summ \log((1-\pi) \gaus{2})^{(1-z_i)} \\
+&= \summ z_i \log{\pi} + \summ z_i \log{\gaus{1}} + \summ(1-z_i)\log{(1-\pi)} + \summ(1- z_i) \log{\gaus{2}} \\
+&= \log{\pi} \summ z_i + \summ z_i \log{\gaus{1}} + \log{(1-\pi)}(n - \summ z_i) + \summ (1 - z_i)\log{\gaus{2}}
+\end{align*}
+
+## b) 
+Find $Q(\theta|\theta^{(k)})$.
+
+We then can write $Q(\theta | \theta^{(k)})$ as the expected value of the $l(\theta | Y)$ with respect to the 
+distribution of $Z$. As $X$ is observed, all terms not dependant on $Z$ are constant. We can write
+\begin{align*}
+Q(\theta | \theta^{(k)} &= \rm{E}[\log f_Y(y|\theta) | x, \theta^{(k)}] \\
+&= E[\log{\pi} \summ z_i + \summ z_i \log{\gaus{1}} + \log{(1-\pi)}(n - \summ z_i) + \summ (1 - z_i)\log{\gaus{2}}]\\ &= 
+\log{\pi} \summ E[Z_i] + \summ E[Z_i] \log{\gaus{1}} + \log{(1-\pi)}(n - \summ E[Z_i]) + \summ (1 - E[Z_i])\log{\gaus{2}}, 
+\end{align*}
+
+where $E[Z_i]$ is conditional on $x$ and $\theta^{(k)}$.
+
+## c)
+
+As $z_i \in {0, 1}, \forall i \in \mathbb{N}$, we can say that 
+\begin{align*}
+E[Z_i | x_i, \theta^{(k)}] &= 0 \times P[Z_i = 0 | x_i, \theta^{(k)}] + 1 \times P[Z_i = 1|x_i, \theta^{(k)}] \\
+&= P[Z_i = 1|x_i, \theta^{(k)}].
+\end{align*}
+
+Additionally, we can say that 
+
+\[P[Z_i = 1|x_i, \theta^{(k)}] = \frac{P(Z_i=1| x_i, \theta^{(k)})}{P(Z_i=1 | x_i, \theta^{(k)}) + P(Z_i=0| x_i, \theta^{(k)})}
+\]
+where  ${P(Z_i=1 | x_i, \theta^{(k)}) + P(Z_i=0| x_i, \theta^{(k)})} = 1$. 
+
+Using the given density for $Y$, and conditioning on $\theta=(\pi, \mu_1, \mu_2, \sigma_1^2, \sigma_2^2)$, 
+we can say that 
+\begin{align*}
+P[Z_i = 1 | x_i, \theta^{(k)}] &= [\pi^{(k)}\gausk{1}]^1 [(1- \pi^{(k)})\gausk{2}]^{0} \\ &= \pi^{(k)}\gausk{1}
+\end{align*}
+and 
+\begin{align*}
+P[Z_i = 0 | x_i, \theta^{(k)}] &= [\pi^{(k)}\gausk{1}]^0 [(1- \pi^{(k)})\gausk{2}]^{1} \\ &=
+(1- \pi^{(k)})\gausk{2}
+\end{align*}
+
+Combining the two, we can write that 
+\[
+E[Z_i | x_i, \theta^{(k)}] = \frac{\pi^{(k)}\gausk{1}}{\pi^{(k)}\gausk{1} + (1- \pi^{(k)})\gausk{2}}
+\]
+
+## d)
+
+To find $\pi^{(k)}$, we must solve $\frac{\partial Q(\theta | \theta^{(k)})}{\partial \pi} = 0$. Using our equation for $Q(\theta | \theta^{(k)})$, we can write
+can write 
+\[
+\frac{\partial Q(\theta | \theta^{(k)})}{\partial \pi} = \frac{\summ E[Z_i]}{\pi} - \frac{n - \summ E[Z_i]}{1-\pi}.
+\]
+ 
+Setting the derivative equal to zero and solving for $\hat{\pi}$ gives us
+\begin{align*}
+0 &= \frac{\summ E[Z_i]}{\hat{\pi}} - \frac{n - \summ E[Z_i]}{1-\hat{\pi}} \\
+&\implies \hat{\pi}(n - \summ E[Z_i]) = \summ E[Z_i] - \hat{\pi} \summ E[Z_i] \\
+&\implies \hat{\pi} n = \summ E[Z_i] \\
+&\implies \hat{\pi} = \frac{\summ E[Z_i]}{n} = \frac{\eta^{(k)}}{n}
+\end{align*}
+
+## e)
+
+To find the updates for each of the parameters, we take the partial derivatives 
+for each of the unknown parameters and find their roots. We use the proportionality given in the assignment. 
+
+### Solve for $\mu_1^{(k + 1)}$
+\begin{align*}
+0 &= \frac{\partial Q(\theta | \theta^{(k)})}{\partial \mu_1} = \summ E[Z_i] \frac{x_i - \hat{\mu1_1}}{\sigma_1^2} \\
+&\implies \summ E[Z_i]x_i = \hat{\mu_1} \summ E[Z_i] \\
+&\implies \hat{\mu_1} = \frac{\summ E[Z_i] x_i}{\summ E[Z_i]} = \frac{1}{\eta^{(k)}}\summ \eta^{(k)}_i x_i
+\end{align*}
+
+### Solve for $(\sigma_1^2)^{(k + 1)}$
+
+\begin{align*}
+0 &= \frac{\partial Q(\theta | \theta^{(k)})}{\partial \sigma_1^{2}} = \summ E[Z_i] \left(- \frac{1}{2 \sigma_1^2} + 
+\frac{(x_i - \mu_1)^2}{ 2 (\sigma_1^2)^2}\right) \\
+&\implies 0 = \summ E[Z_i] \left( 
+- \frac{1}{2 \hat{\sigma_1^2}} + 
+\frac{(x_i - \mu_1)^2}{(2 \hat{\sigma_1^2)}^2}
+\right) \\
+&\implies  \frac{1}{2\hat{\sigma_1^2}} \summ E[Z_i] = \summ E[Z_i] \frac{(x_i - \mu_1)^2}{2 (\hat{\sigma_1^2})^2} \\
+&\implies \hat{\sigma_1^2} \summ E[Z_i] = \summ E[Z_i] (x_i - \mu_1)^2 \\
+&\implies \hat{\sigma_1^2} \summ E[Z_i] = \summ E[Z_i] (x_i - \mu_1)^2 \\
+&\implies \hat{\sigma_1^2} = \frac{\summ E[Z_i] (x_i - \mu_1)^2}{\summ E[Z_i]} = \frac{1}{\eta^{(k)}} \summ \eta^{(k)}_i (x_i - \mu_1)^2
+\end{align*}
+
+### Solve for $\mu_2^{(k + 1)}$
+\begin{align*}
+0 &= \frac{\partial Q(\theta | \theta^{(k)})}{\partial \mu_2} = \summ (1 - E[Z_i]) \frac{x_i - \hat{\mu_2}}{\sigma_2^2} \\
+&\implies \hat{\mu_2} \summ (1 - E[Z_i]) = \summ(1 - E[Z_i])x_i \\ 
+&\implies \hat{\mu_2} = \frac{\summ(1- E[Z_i])x_i}{\summ(1- E[Z_i])} \\ 
+&= \frac{1}{n - \summ E[Z_i]} \summ(1 - E[Z_i])x_i = \frac{1}{n - \eta^{(k)}} \summ(1 - \eta_i^{(k)})x_i
+\end{align*}
+
+### Solve for $(\sigma_2^2)^{(k + 1)}$
+
+\begin{align*}
+\frac{\partial Q(\theta | \theta^{(k)})}{\partial \sigma_2^{2}} &= \summ(1 - E[Z_i])[-\frac{1}{2 \sigma_2^2} + \frac{(x_i -\mu_2)^2}{2(\sigma_2^2)^2}] \\
+&\implies \frac{1}{2\hat{\sigma_2^2}} \summ(1 - E[Z_i]) = \frac{1}{2(\hat{\sigma_2^2})} \summ (1 - E[Z_i])(x_i - \mu_2^{(k)})^2 \\
+&\implies \hat{\sigma_2^2} = \frac{\summ (1 - E[Z_i]) (x_i - \mu_2^{(k)})^2}{\summ(1 - E[Z_i])}  \\
+&= \frac{1}{n - \eta^{(k)}} \summ (1 - \eta^{(k)}_i)(x_i - \mu_2^{(k)})^2
+\end{align*}
+
+
+
+
+
+
+
 
 
 
