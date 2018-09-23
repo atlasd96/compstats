@@ -122,7 +122,7 @@
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{September 12, 2018}
+    \date{September 17, 2018}
 
 \usepackage{amssymb}
 
@@ -624,8 +624,8 @@ Let \texttt{theta0} be a reasonable set of starting values for the
 elements of \(\theta\).
 
 Let \texttt{epsilon} be the convergence value, such that when the
-Euclidean distance between values \(theta^{(t)}\) and
-\(theta^{(t + 1)}\) are less than \texttt{epsilon}, the algorithm has
+Euclidean distance between values \(\theta^{(t)}\) and
+\(\theta^{(t + 1)}\) are less than \texttt{epsilon}, the algorithm has
 converged, and stops iterating.
 
 \begin{verbatim}
@@ -647,6 +647,10 @@ EM Algorithm(q, q_updates, x, theta0, epsilon)
 
   return theta_t
 \end{verbatim}
+
+Given the closed form solutions derived in earlier steps, the algorithm
+is extremely simple, as most of the heavy lifting has been done above
+manually with the calculus of the earlier steps.
 
 
 \end{document}

@@ -1,7 +1,7 @@
 ---
 title: "Atlas-PS 3"
 author: "David Atlas"
-date: "September 12, 2018"
+date: "September 17, 2018"
 output: 
   pdf_document: 
     keep_tex: yes
@@ -465,7 +465,7 @@ EM Algorithm(q, q_updates, x, theta0, epsilon)
 ```
 
 Given the closed form solutions derived in earlier steps, the algorithm is extremely simple, as most of the heavy lifting 
-has been done above manually. 
+has been done above manually with the calculus of the earlier steps. 
 
 
 
