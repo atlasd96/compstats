@@ -33,12 +33,13 @@ monte_carlo_integration <- function(f, a, b, n, plot=FALSE){
   
   proportion_under <- mean(f(x_points) >= y_points)
   
-  
+  # Plot the scatter plot of points
   if(plot){
-    
-    plot(seq(a, b, .01), f(seq(a, b, .01)), 'l', lwd=5, col='blue', xlab='X', ylab=TeX("$f(x)$"))
-    points(x_points, y_points, col= as.factor(ifelse(f(x_points) <= y_points, 0, 1)), lwd=.25)
-    
+    plot(seq(a, b, .01), f(seq(a, b, .01)), 'l', 
+         lwd=5, col='blue', xlab='X', ylab=TeX("$f(x)$"))
+    points(x_points, y_points, 
+           col= as.factor(ifelse(f(x_points) <= y_points, 0, 1)), 
+           lwd=.25)
   }
   
   return(total_area * proportion_under)
@@ -194,7 +195,9 @@ while (n < 10000){
   }
 }
 hist(X, breaks = seq(-5,5,.25))
-print(paste0("It took ", total, " random draws to accumulate 10000 points, leading to efficiency ", round(n / total, 3)))
+print(paste0("It took ", total, 
+             " random draws to accumulate 10000 points, leading to efficiency ", 
+             round(n / total, 3)))
 print(paste0("The mean of the sample is: ", mean(X)))
 print(paste0("The standard deviation of the sample is: ", sd(X)))
 
@@ -212,30 +215,58 @@ Generally, squeezed rejection sampling can help reduce the number of times that 
 
 There isn't really any reason to use squeezed rejection sampling in this problem, as $f(x)$ is not computationally expensive to compute. Using the built in R function, it's a constant time evaluation.
 
-However, if we were to want to use a squeezing function for this problem, we could use a piecewise function 
+However, if we were to want to use a squeezing function for this problem, we could use a piecewise function similar to the one in problem 2.
 \[
 s(x) = 
 \begin{cases}
-0 & x < -.57 \\
-.2 & -.57 \leq x \leq .57 \\
-0 & x > .57.
+.38 + .2x & x <  0 \\
+.38 -.2x &  x \geq 0 
 \end{cases}
 \]
 
-We plot the densities again with the squeezing function on top. 
+We plot the densities again with the squeezing function.
 ```{r}
 plot(seq(-10, 10, .01), dnorm(seq(-10, 10, .01), 0, 1), 'l', 
      ylim=c(0, .5), 
      main = "N(0, 1) and N(1, 2) with alpha=.4 and a squeezing function.", 
      xlab = 'X', ylab='f(x)')
 lines(seq(-10, 10, .01), dnorm(seq(-10, 10, .01), 1, 2) / .4, 'l')
-s <- function(x) ifelse(x < -.84 | x > .84, 0, .2)
+
+s <- function(x) ifelse(x < 0, .38 + .2 * x, .38 - .2 * x)
 lines(seq(-10, 10, .01), s(seq(-10, 10, .01)))
 
 ```
 
 
-This could help, as we can evaluate the piecewise function quickly, and use it to filter observations for acceptance or rejection. 
+This could help, as we can evaluate the squeezing function easily, and use it to filter observations before evaluation $f(x)$.
+
+
+Just for fun, I ran a quick time trial across a handful of values of $n$ (the number of time evaluating each of these functions).
+
+```{r}
+n <- c(10, 100, 1000, 10000, 100000)
+norm_times <- rep(0, length(n))
+s_times <- rep(0, length(n))
+for (i in 1:length(n)){
+  x <- runif(n[i], -1, 1)
+  norm_begin <- Sys.time()
+  norm <- dnorm(x, mean=0, sd=1)
+  norm_end <- Sys.time()
+  
+  s_begin <- Sys.time()
+  s_ <- s(x)
+  s_end <- Sys.time()
+  
+  norm_times[i] <-  norm_end - norm_begin
+  s_times[i] <- s_end - s_begin
+}
+options(scipen = 1000000)
+knitr::kable(data.frame(n=n, f_times = norm_times, s_times = s_times), 
+             col.names = c("n", "Time to Evaluate f(x)", "Time to Evaluate s(x)"))
+```
+
+In practice, it ends up being faster to compute $f(x)$ for large samples, so we wouldn't use the squeezing function here. Not too surprising, as $f(x)$ here is not computationally expensive. 
+
 
 
 
