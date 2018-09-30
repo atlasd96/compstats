@@ -472,5 +472,3 @@ has been done above manually with the calculus of the earlier steps.
 
 
 
-
-
