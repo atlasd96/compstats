@@ -42,4 +42,28 @@ Integrating both sides of the equation with respect to $dx_1$, we get
 \[
 \int_{-\infty}^{\infty}\frac{f_{X_1|X_2}(x_1|x_2)}{f_{X_2|X_1}(x_2|x_1)} dx_1 = \int_{-\infty}^{\infty} \frac{f_{X_1}(x_1)}{f_{X_2}(x_2)}dx_1 = \frac{1}{f_{X_2}(x_2)}
 \]
-because $\int_{-\infty}^{\infty} f_{X_1}(x_1)$
+because $\int_{-\infty}^{\infty} f_{X_1}(x_1)dx_1 = 1$, as $f_{X_1}$ is a probability distribution.
+
+We reference the equations above to show that 
+\[
+f_{X_2}(x_2)} = \frac{f(x_1, x_2)}{f_{X_1 | X_2}(x_1 | x_2)}
+\]
+implying
+\[
+\frac{1}{\int_{-\infty}^{\infty}\frac{f_{X_1|X_2}(x_1|x_2)}{f_{X_2|X_1}(x_2|x_1)} dx_1} = 
+f_{X_2}(x_2)} = \frac{f(x_1, x_2)}{f_{X_1 | X_2}(x_1 | x_2)}.
+\]
+
+Multiplying across, we can say that 
+\[
+f(x_1, x_2) = \frac{f_{X_1 | X_2}(x_1 | x_2)}{\int_{-\infty}^{\infty}\frac{f_{X_1|X_2}(x_1|x_2)}{f_{X_2|X_1}(x_2|x_1)} dx_1}.
+\]
+
+
+
+
+
+
+
+
+
