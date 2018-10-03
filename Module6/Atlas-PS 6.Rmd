@@ -1,0 +1,45 @@
+---
+title: "Atlas-PS 6"
+author: "David Atlas"
+date: "10/2/2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Problem 1
+## a) 
+
+To show that the Metropolis-Hastings ratio will always be equal to 1 when $g(\cdot \vert x^{(t)}) = f(\cdot \vert x^{(t)})$, we first define the ratio 
+\[
+R(x^{(t)}, X^*)=\frac{f(X^*) g(x^{(t)} \vert X^*)}{f(x^{(t)}) g(X^*|x^{(t)})}.
+\]
+
+Note that $g(\cdot \vert x^{(t)}) = f(\cdot \vert x^{(t)}) \forall x^{(t)} \implies f(X^*|x^{(t)}) = g(X^*|x^{(t)})$ and $ f(X^{(t)} | X^*) = g(X^{(t)} | X^*)$. In the Metropolis-Hastings Ratio, $f$ is not conditional on previous values of the simulation, as it is the target distribution that we want to converge on. Therefore, $f(X^*) = g(X^*|x^{(t)})$ and $f(X^{(t)}) = g(X^{(t)} | X^*) \forall x^{(t)}$.
+
+Now, it is trivial to show that 
+\[
+R(x^{(t)}, X^*)=\frac{g(x^{(t)} \vert X^*) f(X^*) }{f(x^{(t)}) g(X^*|x^{(t)})} = \frac{f(x^{(t)} \vert X^*) f(X^*) }{f(x^{(t)}) f(X^*|x^{(t)})} =  \frac{f(x^{(t)}) f(X^*) }{f(x^{(t)}) f(X^*)} = 1.
+\]
+
+This is intuitive too, as if the proposal distribution is equal to the target distribution, any draw from the proposal distribution should be included in the chain, and this will lead to convergence on the target distribution. 
+
+## b)
+We start with the definition of the conditional distribution 
+\[
+f_{X_1 | X_2}(x_1 | x_2) = \frac{f(x_1, x_2)}{f_{X_2}(x_2)},
+\]
+or that the conditional distribution is equal to the joint distribution divided by the marginal distribution of the conditioning variable. 
+
+This implies that 
+\[
+\frac{f_{X_1|X_2}(x_1|x_2)}{f_{X_2|X_1}(x_2|x_1)} = \frac{f(x_1, x_2)f_{X_1}(x_1)}{f_{X_2}(x_2)f(x_1, x_2)} = \frac{f_{X_1}(x_1)}{f_{X_2}(x_2)}.
+\]
+
+Integrating both sides of the equation with respect to $dx_1$, we get
+\[
+\int_{-\infty}^{\infty}\frac{f_{X_1|X_2}(x_1|x_2)}{f_{X_2|X_1}(x_2|x_1)} dx_1 = \int_{-\infty}^{\infty} \frac{f_{X_1}(x_1)}{f_{X_2}(x_2)}dx_1 = \frac{1}{f_{X_2}(x_2)}
+\]
+because $\int_{-\infty}^{\infty} f_{X_1}(x_1)$
