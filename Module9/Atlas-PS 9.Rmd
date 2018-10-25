@@ -1,0 +1,92 @@
+---
+title: "Atlas-PS 9"
+author: "David Atlas"
+date: "10/21/2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Problem 1
+## a)
+We find the bootstrapped 95\% CI for the mean log survival time below. We plot the histograms with the confidence intervals for the mean.
+
+```{r}
+get_bootstraps <- function(data, T, n){
+  return(sapply(seq(1, n), function(i) T(sample(data, length(data), replace=TRUE))))
+}
+
+get_studentized_percentile <- function(data, alpha){
+  return(quantile((data - mean(data)) / sd(data), alpha))
+}
+
+set.seed(73)
+survival.s <- log(c(25, 42, 45, 46, 51, 103, 124, 146, 340, 396, 412, 876, 1112))
+
+n <- 10000
+alpha <- .05
+bootstraps.s <- get_bootstraps(survival.s, mean, n)
+stdev.s <- sd(bootstraps.s)
+
+lwr <- mean(bootstraps.s) - (stdev.s * get_studentized_percentile(bootstraps.s, 1 - (alpha / 2)))
+upr <- mean(bootstraps.s) - (stdev.s * get_studentized_percentile(bootstraps.s, (alpha / 2)))
+hist(bootstraps.s, main="Stomach Cancer - Log Survival Days", xlab="Log Survival Days")
+abline(v=lwr, col='green')
+abline(v=upr, col='green')
+```
+
+We find the 95\% CI for the mean log survival time for stomach cancer to be $[4.309, 5.612]$. Next, 
+we repeat the process for breast cancer.
+
+```{r}
+set.seed(73)
+survival.b <- log(c(24, 40, 719, 727, 791, 1166, 1235, 1581, 1804, 3460, 3808))
+
+# Find the CI for 
+
+n <- 10000
+alpha <- .05
+bootstraps.b <- get_bootstraps(survival.b, mean, n)
+stdev.b <- sd(bootstraps.b)
+
+lwr <- mean(bootstraps.b) - (stdev.b * get_studentized_percentile(bootstraps.b, 1 - (alpha / 2)))
+upr <- mean(bootstraps.b) - (stdev.b * get_studentized_percentile(bootstraps.b, (alpha / 2)))
+hist(bootstraps.b, main="Breast Cancer - Log Survival Days", xlab="Log Survival Days")
+abline(v=lwr, col='green')
+abline(v=upr, col='green')
+
+
+```
+
+For breast cancer, we find it to be $[5.720, 7.567]$.
+
+## b) 
+Next, we use permutation tests to examine the hypothesis that htere is no difference in mean survival time.
+```{r}
+
+
+```
+
+
+# Problem 4
+## a)
+We draw 100 random points from the standard normal distribution.
+```{r}
+set.seed(73)
+data <- rnorm(n=100, mean=0, sd=1)
+mean(data)
+```
+
+The mean of the data is .069.
+
+## b) 
+Next, we resample the data and calculate the means of each sample.
+```{r}
+sapply(seq(1, 10), function(i) mean(sample(data, length(data), replace=TRUE)))
+```
+
+
+
+
