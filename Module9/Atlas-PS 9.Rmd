@@ -43,7 +43,7 @@ abline(v=lwr, col='green')
 abline(v=upr, col='green')
 ```
 
-We find the 95\% CI for the mean log survival time for stomach cancer to be $[4.309, 5.612]$. 
+We find the 95\% CI for the mean log survival time for stomach cancer to be $[4.309, 5.612]$.
 To find the bootstrap variance, we simply take the variance of the bootstrapped means:
 ```{r}
 var(bootstraps.s)
@@ -56,7 +56,7 @@ Next, we repeat the process for breast cancer.
 set.seed(73)
 survival.b <- log(c(24, 40, 719, 727, 791, 1166, 1235, 1581, 1804, 3460, 3808))
 
-# Find the CI for 
+# Find the CI for
 
 n <- 10000
 alpha <- .05
@@ -115,7 +115,7 @@ upr <- mean(bootstraps.b) - (stdev.b * get_studentized_percentile(bootstraps.b, 
 exp(c(lwr, upr))
 ```
 
-We see that this interval is different, although much closer to the exponentiated log bootstrap than to the bootstrap on the original data. 
+We see that this interval is different, although much closer to the exponentiated log bootstrap than to the bootstrap on the original data.
 
 # Problem 2
 We first tackle the problem of estimating the mean of a Cauchy distribution. We generate an empirical distribution and look at the mean of the mean estimate (in green).
@@ -162,7 +162,7 @@ This bootstrapped estimate for the maximum is very close to the correct estimate
 First, we define $E_{\hat{P}}(Y) = \sum {Y_i} \hat{P}(Y_{i}) = \bar{Y}$, as the empirical distribution is discrete. By the bootstrap principle, we can equate the distribution of $\bar{Y}^*$, so $E_{\hat{P}}(Y^*) = \sum {Y_i^*} \hat{P}(Y_{i}^*) = \bar{Y^*}$.
 
 ## b)
-Next, note that $E_{P}(Y) = \int{Y} P(Y) dY = \mu$, as defined in the problem. Again, we can apply the bootstrap principle to say that 
+Next, note that $E_{P}(Y) = \int{Y} P(Y) dY = \mu$, as defined in the problem. Again, we can apply the bootstrap principle to say that
 $E_{P}(Y^*) = \int{Y^*} P(Y^*) dY^*$, which has the same distribution as the empirical distribution. Therefore, it will also be $\mu$.
 
 # Problem 4
@@ -209,11 +209,5 @@ var(balanced_bootstrapped(data, mean, 10))
 ```
 The variance of the bootstraps is .134.
 ## d)
-The bias is smaller under the balanced bootstrap, as it is zero by definition. However, the variance 
+The bias is smaller under the balanced bootstrap, as it is zero by definition. However, the variance
 is higher than under the standard bootstrap.
-
-
-
-
-
-
