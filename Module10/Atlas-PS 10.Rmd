@@ -1,0 +1,63 @@
+---
+title: "Atlas-PS 10"
+author: "David Atlas"
+date: "10/31/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Problem 1
+We define an orthogonal function family to be a set of functions $F$ for which $<f, g> = 0 \forall f \neq g, f \in F, g \in F$. Here, 
+we define the inner product of two functions with respect to a weight function $w(x)$ to be $\int_D f(x)g(x)w(x)dx$. In the given problem,  $w(x) = 1$, so we 
+needn't worry about it.
+
+We start by asserting 3 commonly known identities.
+\begin{align}
+sin(x)sin(y) &= \frac{1}{2}(cos(x-y) - cos(x + y)) \\
+cos(x)cos(y) &= \frac{1}{2}(cos(x+y) + cos(x - y)) \\
+sin(x)cos(x) &= \frac{1}{2}(sin(x+y) + sin(x-y))
+\end{align}
+
+As both $\int_0^{2\pi}cos(kx) dx = 0$ and $\int_0^{2\pi}sin(kx) dx = 0$ are trivial for all $k \in \mathbb{N}$, we won't discuss the inner product of 1 and any of the functions in the family.
+
+Next, we invoke the identity to say the following: 
+
+Let $k, j$ be natural numbers. Without loss of generalization, we can say that  $k < j$.
+\begin{align*}
+\int_0^{2\pi}cos(jx)cos(kx)dx &= 
+\frac{1}{2} \int_0^{2 \pi} cos((j + k) x) + cos((j - k )x) \\
+\frac{1}{2} [\frac{sin((j+k)x)}{j+k} + \frac{sin((j - k)x)}{j-k}\vert_0^{2\pi}.
+\end{align*}
+
+Note that $\int_0^{2\pi}sin(kx) dx = 0$ , implying that $\int_0^{2\pi}cos(jx)cos(kx)dx = 0 \forall j, k \in \mathbb{N}, j\neq k$.
+
+Let $k, j$ be natural numbers. Without loss of generalization, we can say that  $k < j$.
+\begin{align*}
+\int_0^{2\pi}sin(jx)sin(kx)dx &= 
+\frac{1}{2} \int_0^{2 \pi} cos((j - k) x) - cos((j + k )x) \\
+\frac{1}{2} [\frac{sin((j-k)x)}{j-k} - \frac{sin((j + k)x)}{j+k}] \vert_0^{2\pi}.
+\end{align*}
+Again, both terms are equal to zero for any natural numbers $j$ and $k$ that aren't equal to each other. 
+
+Let $k, j$ be natural numbers. Without loss of generalization, we can say that  $k < j$$.
+\begin{align*}
+\int_0^{2\pi}cos(jx)sin(kx)dx &= 
+\frac{1}{2} \int_0^{2 \pi} sin((j + k) x) + sin ((j - k )x) \\
+\frac{1}{2} [-\frac{cos((j+k)x)}{j+k} - \frac{cos((j-k)x)}{j-k}] \vert_0^{2\pi}
+\end{align*}
+
+We note that $cos(k (2 \pi)) = 1 \forall k \in \mathbb{N}$ and $cos(0) = 1$. Therefore, for any natural 
+numbers $j$ and $k$, $\frac{1}{2} [-\frac{cos((j+k)x)}{j+k} - \frac{cos((j-k)x)}{j-k}] \vert_0^{2\pi}= -1 - (-1)= 0$.
+
+We should note here that 
+\[
+\int_0^{2\pi}sin(kx)cos(kx)dx
+\]
+would result in a divide-by-zero issue above. For this, we note that 
+$\int_0^{2\pi}sin(kx)cos(kx)dx = -\frac{cos^2(kx)}{2k} \vert_0^{2\pi} = -\frac{1}{2k} - (- \frac{1}{2k}) =0$.
+
+Therefore, we have show the Fourier Trigonometric Family to be orthogonal on $0 \leq x \leq 2\pi$ with respect to weight $w(x)=1$.
+
