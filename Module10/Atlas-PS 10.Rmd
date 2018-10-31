@@ -61,3 +61,48 @@ $\int_0^{2\pi}sin(kx)cos(kx)dx = -\frac{cos^2(kx)}{2k} \vert_0^{2\pi} = -\frac{1
 
 Therefore, we have show the Fourier Trigonometric Family to be orthogonal on $0 \leq x \leq 2\pi$ with respect to weight $w(x)=1$.
 
+# Problem 2
+## a) 
+To show that if ${q_i(x)}$ is a set of orthogonal functions, then it is a linearly independent set, we use a proof by contradiction.
+First, note that a set of orthogonal functions can trivialy be normalized, so we can assume without loss of generality that 
+it is an orthonormal set.
+
+Suppose it is not a linearly independent set. Then there must exist a function $q_k(x)$ such that $q_k(x) = \sum_{i=1}^{k-1} c_i q_i(x)$, 
+where $\exists i \in [1, k-1]$ such that $c_i \neq 0$. 
+(Note that we assume here that it is the last function in the set, $q_k$ out of notational convenience, but it doesn't really matter.)
+
+Next, note that we can rewrite the sequence of constants, $c_i$ as 
+\[
+c_i = <q_k(x), q_i(x)>,  \forall 1 \leq i \leq k-1.
+\]
+
+Because the set of functions is orthogonal, we know that $<q_k(x), q_i(x)>=0$ for all $i \in [1, k-1]$. However, 
+this is a contradiction, because $\nexists i \in [1, k-1]$ such that $c_i \neq 0$.
+
+Therefore the set must be linearly independent, and we have show that a set of othogonal functions must be linearly independent too.
+
+## b)
+We first define $\rm{IMSE} = \int_D \rm{E}[(\hat{f}(x) - f(x))^2]$. Noting that the variance of $\hat{f}(x)$ can be 
+written as $\rm{V}(\hat{f}) = \rm{E}[\hat{f}(x)^2] - \rm{E}[\hat{f}(x)]^2$, we rewrite $\rm{IMSE}$:
+\begin{align*}
+\rm{IMSE} &= \int_D \rm{E}[(\hat{f}(x) - f(x))^2] \\
+&= \rm{E}[(\hat{f}(x)^2] - 2rm{E}[(\hat{f}(x)f(x)] +  \rm{E}[f(x)^2] \\
+&= \rm{V}(\hat{f})- 2rm{E}[(\hat{f}(x)f(x)] +  \rm{E}[f(x)^2] 
+\end{align*}
+
+TODO: FINISH THE ABOVE PROBLEM
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
