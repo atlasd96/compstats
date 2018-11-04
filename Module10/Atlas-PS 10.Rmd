@@ -1,0 +1,108 @@
+---
+title: "Atlas-PS 10"
+author: "David Atlas"
+date: "10/31/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Problem 1
+We define an orthogonal function family to be a set of functions $F$ for which $<f, g> = 0 \forall f \neq g, f \in F, g \in F$. Here, 
+we define the inner product of two functions with respect to a weight function $w(x)$ to be $\int_D f(x)g(x)w(x)dx$. In the given problem,  $w(x) = 1$, so we 
+needn't worry about it.
+
+We start by asserting 3 commonly known identities.
+\begin{align}
+sin(x)sin(y) &= \frac{1}{2}(cos(x-y) - cos(x + y)) \\
+cos(x)cos(y) &= \frac{1}{2}(cos(x+y) + cos(x - y)) \\
+sin(x)cos(x) &= \frac{1}{2}(sin(x+y) + sin(x-y))
+\end{align}
+
+As both $\int_0^{2\pi}cos(kx) dx = 0$ and $\int_0^{2\pi}sin(kx) dx = 0$ are trivial for all $k \in \mathbb{N}$, we won't discuss the inner product of 1 and any of the functions in the family.
+
+Next, we invoke the identity to say the following: 
+
+Let $k, j$ be natural numbers. Without loss of generalization, we can say that  $k < j$.
+\begin{align*}
+\int_0^{2\pi}cos(jx)cos(kx)dx &= 
+\frac{1}{2} \int_0^{2 \pi} cos((j + k) x) + cos((j - k )x) \\
+\frac{1}{2} [\frac{sin((j+k)x)}{j+k} + \frac{sin((j - k)x)}{j-k}\vert_0^{2\pi}.
+\end{align*}
+
+Note that $\int_0^{2\pi}sin(kx) dx = 0$ , implying that $\int_0^{2\pi}cos(jx)cos(kx)dx = 0 \forall j, k \in \mathbb{N}, j\neq k$.
+
+Let $k, j$ be natural numbers. Without loss of generalization, we can say that  $k < j$.
+\begin{align*}
+\int_0^{2\pi}sin(jx)sin(kx)dx &= 
+\frac{1}{2} \int_0^{2 \pi} cos((j - k) x) - cos((j + k )x) \\
+\frac{1}{2} [\frac{sin((j-k)x)}{j-k} - \frac{sin((j + k)x)}{j+k}] \vert_0^{2\pi}.
+\end{align*}
+Again, both terms are equal to zero for any natural numbers $j$ and $k$ that aren't equal to each other. 
+
+Let $k, j$ be natural numbers. Without loss of generalization, we can say that  $k < j$$.
+\begin{align*}
+\int_0^{2\pi}cos(jx)sin(kx)dx &= 
+\frac{1}{2} \int_0^{2 \pi} sin((j + k) x) + sin ((j - k )x) \\
+\frac{1}{2} [-\frac{cos((j+k)x)}{j+k} - \frac{cos((j-k)x)}{j-k}] \vert_0^{2\pi}
+\end{align*}
+
+We note that $cos(k (2 \pi)) = 1 \forall k \in \mathbb{N}$ and $cos(0) = 1$. Therefore, for any natural 
+numbers $j$ and $k$, $\frac{1}{2} [-\frac{cos((j+k)x)}{j+k} - \frac{cos((j-k)x)}{j-k}] \vert_0^{2\pi}= -1 - (-1)= 0$.
+
+We should note here that 
+\[
+\int_0^{2\pi}sin(kx)cos(kx)dx
+\]
+would result in a divide-by-zero issue above. For this, we note that 
+$\int_0^{2\pi}sin(kx)cos(kx)dx = -\frac{cos^2(kx)}{2k} \vert_0^{2\pi} = -\frac{1}{2k} - (- \frac{1}{2k}) =0$.
+
+Therefore, we have show the Fourier Trigonometric Family to be orthogonal on $0 \leq x \leq 2\pi$ with respect to weight $w(x)=1$.
+
+# Problem 2
+## a) 
+To show that if ${q_i(x)}$ is a set of orthogonal functions, then it is a linearly independent set, we use a proof by contradiction.
+First, note that a set of orthogonal functions can trivialy be normalized, so we can assume without loss of generality that 
+it is an orthonormal set.
+
+Suppose it is not a linearly independent set. Then there must exist a function $q_k(x)$ such that $q_k(x) = \sum_{i=1}^{k-1} c_i q_i(x)$, 
+where $\exists i \in [1, k-1]$ such that $c_i \neq 0$. 
+(Note that we assume here that it is the last function in the set, $q_k$ out of notational convenience, but it doesn't really matter.)
+
+Next, note that we can rewrite the sequence of constants, $c_i$ as 
+\[
+c_i = <q_k(x), q_i(x)>,  \forall 1 \leq i \leq k-1.
+\]
+
+Because the set of functions is orthogonal, we know that $<q_k(x), q_i(x)>=0$ for all $i \in [1, k-1]$. However, 
+this is a contradiction, because $\nexists i \in [1, k-1]$ such that $c_i \neq 0$.
+
+Therefore the set must be linearly independent, and we have show that a set of othogonal functions must be linearly independent too.
+
+## b)
+We first define $\rm{IMSE} = \int_D \rm{E}[(\hat{f}(x) - f(x))^2]$. Noting that the variance of $\hat{f}(x)$ can be 
+written as $\rm{V}(\hat{f}) = \rm{E}[\hat{f}(x)^2] - \rm{E}[\hat{f}(x)]^2$, we rewrite $\rm{IMSE}$:
+\begin{align*}
+\rm{IMSE} &= \int_D \rm{E}[(\hat{f}(x) - f(x))^2] \\
+&= \rm{E}[(\hat{f}(x)^2] - 2rm{E}[(\hat{f}(x)f(x)] +  \rm{E}[f(x)^2] \\
+&= \rm{V}(\hat{f})- 2rm{E}[(\hat{f}(x)f(x)] +  \rm{E}[f(x)^2] 
+\end{align*}
+
+TODO: FINISH THE ABOVE PROBLEM
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
