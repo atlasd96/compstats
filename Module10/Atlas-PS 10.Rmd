@@ -82,18 +82,75 @@ this is a contradiction, because $\nexists i \in [1, k-1]$ such that $c_i \neq 0
 Therefore the set must be linearly independent, and we have show that a set of othogonal functions must be linearly independent too.
 
 ## b)
-We first define $\rm{IMSE} = \int_D \rm{E}[(\hat{f}(x) - f(x))^2]$. Noting that the variance of $\hat{f}(x)$ can be 
-written as $\rm{V}(\hat{f}) = \rm{E}[\hat{f}(x)^2] - \rm{E}[\hat{f}(x)]^2$, we rewrite $\rm{IMSE}$:
+We first define $\rm{IMSE} = \int_D \rm{E}[(\hat{f}(x) - f(x))^2]$. 
+Also, the expected value of $f(x)$ is a constant with respect to $\hat{f}(x)$.
+
+Noting that the variance of $\hat{f}(x)$ can be written as $\rm{V}(\hat{f}) = \rm{E}[\hat{f}(x)^2] - \rm{E}[\hat{f}(x)]^2$, we rewrite $\rm{IMSE}$:
 \begin{align*}
 \rm{IMSE} &= \int_D \rm{E}[(\hat{f}(x) - f(x))^2] \\
-&= \rm{E}[(\hat{f}(x)^2] - 2rm{E}[(\hat{f}(x)f(x)] +  \rm{E}[f(x)^2] \\
-&= \rm{V}(\hat{f})- 2rm{E}[(\hat{f}(x)f(x)] +  \rm{E}[f(x)^2] 
+&=\int_D \rm{E}[(\hat{f}(x)^2] - 2\rm{E}[(\hat{f}(x)f(x)] +  \rm{E}[f(x)^2] \\
+&=\int_D \rm{V}(\hat{f})- 2\rm{E}[(\hat{f}(x)]f(x) +  f(x)^2 + \rm{E}[\hat{f})]^2 \\
+&=\int_D \rm{V}(\hat{f}) + (\rm{E}[\hat{f}(x)] - f(x))^2 \\
+&= \rm{IV}(\hat{f}) + \rm{ISB}(\hat{f}).
 \end{align*}
 
-TODO: FINISH THE ABOVE PROBLEM
+# Problem 3
+First, $\vert\vert\sum_{i=1}^m q_i\vert\vert^2$ can be expanded to be equal to $\sum_{i=1}^m \vert\vert q_i\vert\vert^2 + \sum_{j \neq k} \vert\vert q_j q_k \vert\vert $. Because the set of functions are orthogonal, 
+$\sum_{j \neq k} \vert\vert q_j q_k=0 \vert\vert$. Therefore, 
+$\vert\vert\sum_{i=1}^m q_i\vert\vert^2 = \sum_{i=1}^m \vert\vert q_i^2\vert\vert$. Under the L2 norm, 
+$\sum_{i=1}^m \vert\vert q_i^2\vert\vert = \sum_{i=1}^m \vert\vert q_i\vert\vert^2$.
 
+If each of the $q_k$ are orthonormal, the value of the expression will always evaluate to $m$, as it
+will be the sum of $m$ functions equal to 1 over the space.
 
+This expression may not hold under other norms, as the last step above, 
+$\sum_{i=1}^m \vert\vert q_i^2\vert\vert = \sum_{i=1}^m \vert\vert q_i\vert\vert^2$ does not
+necessarily hold under norms that are not L2, as the squared step is not transitive under the norm.
 
+# Problem 4
+## a)
+We derive the first 4 Chebyshev Polynomials using the following formula:
+\[
+q_i(x) = x^i - \sum_{j=1}^{i-1}<q_i, q_j> q_j(x).
+\]
+
+We then normalize them as follows:
+\[
+q_i^*(x) = \frac{q_i(x)}{\vert\vert q_i(x) \vert\vert}
+\]
+
+where the norm is defined as the inner product of the function and itself.
+
+Note that the when $i + j$ is odd, the inner product is zero. 
+
+\begin{align*}
+q_0(x) &= 1 \\
+q_1(x) &= x - 0 \\
+q_2(x) &= (x^2 - \frac{\pi}{8}) \frac{128}{\pi (8 - 4 \pi + \pi^2)} \\
+q_3(x) &= (x^3 - \frac{\pi}{16} \frac{512}{\pi(20+pi^2)}.
+\end{align*}
+
+(I did the algebra using Wolfram Alpha, using the formula above.)
+
+## b)
+Next, we create a function that is the sum of the terms and see if it fits the $N(0, .3)$ data from 
+Blackboard.
+
+```{r}
+data <- scan("Orthogonal.txt")
+f <- function(x) 1 + (x) + 
+      ((x^2 - pi/8) * (128 / (pi * (8 - 4 * pi + pi^2)))) + 
+      ((x^3 - pi/16) * 512 /  (pi * (20 + pi^2)))
+
+hist(data, probability = T)
+x <- seq(-1, 1, .01)
+plot(x, f(x))
+lines(x, f(x))
+```
+
+# Problem 5
+## a)
+The cubic spline described is a natural cubic spline, as $f^{\prime \prime}(-1) = f^{\prime \prime}(1) = 0$ and 
 
 
 
