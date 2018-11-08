@@ -37,7 +37,7 @@ get_kernel_density <- function(x, data, K, h){
 X <- seq(min(data), max(data), .01)
 f_hat <- sapply(X, function(x) get_kernel_density(x, data, dnorm, h=silvermans_rule_of_thumb(data)))
 hist(data, freq=F, ylim=c(0, .6))
-lines(X, f_hat)
+lines(X, f_hat, col='red')
 
 ```
 
@@ -70,6 +70,25 @@ lines(X, f_hat_sj, col='blue')
 ```
 Here, we see the data with the density estimate yielded by Silverman's Rule of Thumb in red, with the density estimated by the Sheather-Jones method in blue. There is minimal difference between the two, as $h$ 
 didn't vary much between the estimates.
+
+### Terrell's Maximum Smoothing Principle
+To find Terrell's Maximum Smoothing value of $h$, we use the formula:
+\[
+h = 3 \left(\frac{R(K)}{35n}\right)^\frac{1}{5} \hat{\sigma}.
+\]
+
+We already found $R(K)$ for the normal density, so we simply plug it in to find $\hat{f}$.
+```{r}
+n <- length(data)
+h <- 3 * ((R_k / (35 * n))^(1/5)) * sd(data)
+f_hat_tmsp <- sapply(X, function(x) get_kernel_density(x, data, dnorm, h=h))
+hist(data, freq=F, ylim=c(0, .6))
+lines(X, f_hat, col='red')
+lines(X, f_hat_sj, col='blue')
+lines(X, f_hat_tmsp, col='green')
+```
+Here, we add in the density given via the maximum smoothing principle in green. It acts as expects; very
+smooth, but not as close of a fit. There is only one mode, and it is clearly the primary mode of the data.
 
 
 
