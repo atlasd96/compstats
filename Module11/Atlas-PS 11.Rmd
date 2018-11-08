@@ -125,10 +125,26 @@ f_hat_epach <- sapply(X, function(x) get_kernel_density(x, data, epach, h=h))
 hist(data, freq=F, ylim=c(0, .6), main="Epanechnikov Kernel Density Estimation")
 lines(X, f_hat_unif, col="green")
 lines(X, f_hat_norm, col="red")
-lines(X, f_hat_epach, col='black')
+lines(X, f_hat_epach, col='blue')
+```
+Here, the Epanechnikov kernel is plotted in blue, alot the other two. 
+
+### Triweight Kernel
+```{r}
+triweight <- function(z) ifelse(abs(z) < 1, (35/32) * (1 - z^2)^3, 0)
+f_hat_triweight <- sapply(X, function(x) get_kernel_density(x, data, epach, h=h))
+hist(data, freq=F, ylim=c(0, .6), main="Epanechnikov Kernel Density Estimation")
+lines(X, f_hat_unif, col="green")
+lines(X, f_hat_norm, col="red")
+lines(X, f_hat_epach, col='blue')
+lines(X, f_hat_triweight, col='purple')
+
 ```
 
+Using the triweight kernel, the data is fit tightly, with many of the 
+same peaks, but smoother over each region.
 
+### Histogram Estimation
 
 
 
