@@ -90,6 +90,44 @@ lines(X, f_hat_tmsp, col='green')
 Here, we add in the density given via the maximum smoothing principle in green. It acts as expects; very
 smooth, but not as close of a fit. There is only one mode, and it is clearly the primary mode of the data.
 
+After fitting all 3, it looks like Sheather-Jones and Silverman's Rule of Thumb are basically equivalent. 
+The maximum smoothing principle is a worse fit, but certainly does not overfit the data.
+
+## b)
+### Uniform Kernel
+We find $\hat{f}$ using a uniform kernel:
+```{r}
+h <- .202
+
+# Uniform density with zero indictor.
+k_uniform <- function(x){
+  return(ifelse(abs(x) < 1, dunif(x, -1, 1), 0))
+}
+
+f_hat_unif <- sapply(X, function(x) get_kernel_density(x, data, k_uniform, h=h))
+hist(data, freq=F, ylim=c(0, .6), main="Uniform Kernel Density Estimation")
+lines(X, f_hat_unif, col="green")
+```
+
+### Normal Kernel
+We already found this above, but we plot it in red against the data and the uniform kernel.
+```{r}
+f_hat_norm <- sapply(X, function(x) get_kernel_density(x, data, dnorm, h=h))
+hist(data, freq=F, ylim=c(0, .6), main="Normal Kernel Density Estimation")
+lines(X, f_hat_unif, col="green")
+lines(X, f_hat_norm, col="red")
+```
+
+### Epanechnikov Kernel
+```{r}
+epach <- function(z) ifelse(abs(z) < 1, .75 * (1 - z^2), 0)
+f_hat_epach <- sapply(X, function(x) get_kernel_density(x, data, epach, h=h))
+hist(data, freq=F, ylim=c(0, .6), main="Epanechnikov Kernel Density Estimation")
+lines(X, f_hat_unif, col="green")
+lines(X, f_hat_norm, col="red")
+lines(X, f_hat_epach, col='black')
+```
+
 
 
 
