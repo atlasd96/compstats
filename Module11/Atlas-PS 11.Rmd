@@ -133,7 +133,7 @@ Here, the Epanechnikov kernel is plotted in blue, alot the other two.
 ```{r}
 triweight <- function(z) ifelse(abs(z) < 1, (35/32) * (1 - z^2)^3, 0)
 f_hat_triweight <- sapply(X, function(x) get_kernel_density(x, data, epach, h=h))
-hist(data, freq=F, ylim=c(0, .6), main="Epanechnikov Kernel Density Estimation")
+hist(data, freq=F, ylim=c(0, .6), main="Triweight Kernel Density Estimation")
 lines(X, f_hat_unif, col="green")
 lines(X, f_hat_norm, col="red")
 lines(X, f_hat_epach, col='blue')
@@ -145,6 +145,19 @@ Using the triweight kernel, the data is fit tightly, with many of the
 same peaks, but smoother over each region.
 
 ### Histogram Estimation
+Next, we add in a histogram estimation using the Sheather-Jones Bandwidth found above:
+```{r}
+bins <- seq(min(data), max(data) + h, h)
+hist(data, freq=F, ylim=c(0, .6), main="Histogram Density Estimation", col=rgb(1, 0, 0 ,0.2))
+lines(X, f_hat_unif, col="green")
+lines(X, f_hat_norm, col="red")
+lines(X, f_hat_epach, col='blue')
+lines(X, f_hat_triweight, col='purple')
+hist(data, breaks=bins, add=T, freq=F, col=rgb(0, 0, 1, 0.2))
+```
+
+Here are all the densities overlaid, where the original histogram is shown in red, and the histogram with
+Sheather-Jones bandwidth is shown in blue. It appears to perhaps overfit the data, showing several modes that may not be so significant.
 
 
 
