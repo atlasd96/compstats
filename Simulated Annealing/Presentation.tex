@@ -1,0 +1,170 @@
+\documentclass[{pdf, t}]{beamer}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\mode<presentation>{}
+
+%% preamble
+\title{Simulated Annealing}
+\subtitle{Applications in Clustering}
+\author{David Atlas}
+\begin{document}
+%% title frame
+\begin{frame}
+  \titlepage
+\end{frame}
+
+%% normal frame
+\begin{frame}{Introduction to Simulated Annealing}
+\begin{block}{Simulated Annealing}
+Simulated annealing is an combinatorial optimization technique that randomly searches a state space, employing heuristics to find approximate solutions. The rest of this presentation
+will assume the optimzation problem faced is a minimization problem.
+\end{block}
+\end{frame}
+
+%% normal frame
+\begin{frame}{Metallurgy Annealing}
+\begin{block}{Metallurgy Annealing}
+\begin{itemize}
+\item Its name is derived from the physical annealing process, in which metal is heated and then cooled.
+
+\item While cooling, the metal generally moves towards lower energy states. At temperature $\tau$, the probability of the energy increase of
+magnitude $\Delta E$ is modeled by $f(\Delta E) = \rm{e}^{\frac{-\Delta E}{k \tau}}$, where $k$ is Boltzmann's constant.
+
+\item During this process, the atoms in the metal are heated such that movement is not restricted, and the slow cooling allows the metal to settle in a low energy state.
+\end{itemize}
+\end{block}
+\end{frame}
+
+%% normal frame
+\begin{frame}{Intuition}
+\begin{enumerate}
+  \item Start at a random point
+  \item Pick a nearby point
+  \item If it is a better point, switch to it. Otherwise,
+    switch to it with some probability.
+  \item Continue this process for some set of iterations.
+\end{enumerate}
+This explores the space, while generally moving towards better
+solutions, but not getting stuck in local minima.
+
+Additionally, the probability of moving to a worse solution decreases as the number of iterations increases.
+Thus, we are open to exploring the space more at
+the beginning, and eventually converge on a good state.
+\end{frame}
+
+%% normal frame
+\begin{frame}{Use Cases}
+Any of the following reasons may warrant using simulated annealing.
+\begin{enumerate}
+  \item Discrete state spaces
+  \item Large, combinatorial problems.
+  \item Numerous local minima
+  \item Approximate solution is suitable
+\end{enumerate}
+\end{frame}
+
+%% normal frame
+\begin{frame}{Comparisons}
+\begin{block}{Descent Algorithms}
+\begin{itemize}
+\item {Descent alogrithms employ heuristics around a function's first and second derivatives to make educated guesses
+as to the next candidate solution. Simulated annealing does not involve the derivatives of a function,
+but searches over similar good solutions to find the next candidate solution.}
+\item {Additionally, discrete functions are not continuous, and so do not have derivatives, making the
+implementation of descent algorithms a challenge.}
+\end{itemize}
+\end{block}
+\end{frame}
+
+
+%% normal frame
+\begin{frame}{Introduction to Simulated Annealing}
+\begin{block}{Minimization Problem}
+Let $\Theta$ be the state space, and $f$ be an
+objective function to be optimized.
+
+Find $\hat{\theta} = \rm{argmin}_{\theta \in \Theta} f(\theta)$.
+\end{block}
+
+\begin{block}{Iterations}
+\begin{itemize}
+\item We run the algorithm in stages, indexed by $j$.
+\item Each stage has iterations, indexed by $t$.
+\item The length of each stage is denoted $m_j$
+\item Each stage has a temperature $\tau_j$
+\end{itemize}
+\end{block}
+\end{frame}
+
+%% normal frame
+\begin{frame}{Acceptance Probability}
+\begin{itemize}
+\item We define the acceptance probability as
+the probability of a move from state $\theta^{(t)}$
+to state $\theta^{*}$.
+\item We can use any PDF for this, but we usually
+use the Boltzmann distribution.
+\end{itemize}
+\begin{block}{Boltzmann Distribution}
+\[
+P(\theta^{(t)}, \theta^{*}, \tau_j)
+= \rm{min}\left(1,
+    \rm{e}^{\frac{f(\theta^{(t)}) - f(\theta^*)}{\tau_j}}\right)
+\]
+\end{block}
+\end{frame}
+
+%% normal frame
+\begin{frame}{Neighborhood Function}
+\begin{itemize}
+\item The neighborhood function is used to generate
+candidate solutions. There is no standard neighborhood function to apply in all situations.
+\item Generally, $\theta^{(t)}$ is selected from
+some neighborhood of the $\theta^*$ with uniform
+probability.
+\item For combinatorial problems, we simply permute
+one element of $\theta^{(t)}$.
+\end{itemize}
+\end{frame}
+
+
+%% normal frame
+\begin{frame}{Parameters}
+\begin{block}{Annealing Schedule}
+\begin{itemize}
+  \item $\tau$ is decreasing in $j$.
+  \item $\tau_j = \alpha (\tau_{j-1}), 0 < \alpha < 1 $
+\end{itemize}
+\end{block}
+\begin{block}{Number of Iterations}
+\begin{itemize}
+  \item $m$ is increasing in $j$
+  \item $m_j = \beta(m_{j-1})$
+\end{itemize}
+\end{block}
+\end{frame}
+
+%% normal frame
+\begin{frame}{The Algorithm}
+\begin{algorithm}[H]
+\caption{SimulatedAnnealing($f$, $\Theta$, $\alpha$, $\beta$, $\epsilon$, $m_0$)}
+\begin{algorithmic}[1]
+\STATE Choose $\theta^{(0)} \in \Theta$
+\STATE $\tau_j = \infty$
+\STATE $m_j = m_0$
+\WHILE{$\tau_j > \epsilon$}
+  \FOR{$t=0$ to $m_j$}
+    \STATE $\theta^*$ = Neighbor($\theta^{(t)}$)
+    \STATE Draw $u \sim U(0, 1)$
+    \IF{$u \leq \rm{min}(1, \rm{e}^{
+      \frac{f(\theta^{(t)}) - f(\theta^*)}{\tau_j})})$}
+      \STATE $\theta^{(t)} = \theta^*$
+    \ENDIF
+  \ENDFOR
+  \STATE $\tau_j = \alpha (\tau_{j})$
+  \STATE $m_j = \beta(m_{j})$
+\ENDWHILE
+\end{algorithmic}
+\end{algorithm}
+\end{frame}
+\end{document}
